@@ -37,6 +37,45 @@
         <div class="filter-group"><h3>サービス種別</h3><div class="tag-list" id="service-tags"></div></div>
         <div class="filter-group"><h3>取組分類</h3><div class="tag-list" id="category-tags"></div></div>
       </div>
+
+      <section class="planner" id="planner" aria-labelledby="planner-title">
+        <div class="planner-heading">
+          <div><p class="section-kicker">ACTION PLANNER</p><h2 id="planner-title">課題から計画を作る</h2></div>
+          <p>CSV・手入力・参考事例のどこからでも始められます</p>
+        </div>
+        <div class="planner-tabs" role="tablist" aria-label="計画作成の入口">
+          <button type="button" class="planner-tab is-active" role="tab" aria-selected="true" data-planner-tab="csv">問題虫めがねCSVから作成</button>
+          <button type="button" class="planner-tab" role="tab" aria-selected="false" data-planner-tab="manual">課題を手入力して作成</button>
+          <button type="button" class="planner-tab" role="tab" aria-selected="false" data-planner-tab="case">選択した事例から作成</button>
+        </div>
+        <div class="planner-panel" id="planner-csv-panel" role="tabpanel">
+          <div class="csv-upload">
+            <div><h3>問題虫めがねCSVを読み込む</h3><p>ファイルはブラウザ内だけで処理され、外部へ送信されません。</p></div>
+            <label class="file-button">CSVファイルを選択<input id="problem-csv-input" type="file" accept=".csv,text/csv"></label>
+          </div>
+          <p class="planner-status" id="csv-status">CSVを選択すると、回答を集計して課題カードを作成します。</p>
+          <div class="csv-summary" id="csv-summary" hidden></div>
+          <div class="issue-list" id="csv-issue-list"></div>
+        </div>
+        <div class="planner-panel" id="planner-manual-panel" role="tabpanel" hidden>
+          <form class="manual-form" id="manual-plan-form">
+            <label>課題名<input name="title" required placeholder="例：申し送りの抜け漏れを減らす"></label>
+            <label class="form-wide">現状<textarea name="current" required rows="3" placeholder="今、何に困っていますか"></textarea></label>
+            <label class="form-wide">ありたい姿<textarea name="desired" required rows="3" placeholder="どのような状態を目指しますか"></textarea></label>
+            <label>困りごと分類<select name="problemCategory" required><option value="">選択してください</option></select></label>
+            <label>解決方向性<select name="direction" required><option value="">選択してください</option><option>道具（ICT）</option><option>道具（介護テクノロジー）</option><option>運用ルール</option><option>業務プロセス変更</option><option>制度設計</option></select></label>
+            <label>サービス種別<input name="service" placeholder="例：通所介護"></label>
+            <label>キーワード<input name="keywords" placeholder="例：記録、申し送り"></label>
+            <button class="primary-button form-wide" type="submit">関連事例と計画案を作る</button>
+          </form>
+        </div>
+        <div class="planner-panel planner-case-panel" id="planner-case-panel" role="tabpanel" hidden>
+          <h3>事例カードから選択してください</h3>
+          <p id="selected-case-message">各事例の「この事例をもとに計画を作る」ボタンから開始できます。</p>
+        </div>
+        <div class="plan-output" id="plan-output" hidden aria-live="polite"></div>
+      </section>
+
       <div class="result-bar" aria-live="polite">
         <p><strong id="result-count">0</strong><span>件の事例</span></p>
         <label>並び順 <select id="sort-select"><option value="recommended">おすすめ順</option><option value="title">タイトル順</option></select></label>
@@ -62,7 +101,7 @@
       <div class="card-section outcome-section"><span class="card-label">成果</span><p class="case-outcome"></p></div>
       <div class="card-section"><span class="card-label">真似できるポイント</span><p class="case-tip"></p></div>
       <div class="suitable-section"><span class="card-label">この事例が向いている施設</span><p class="case-suitable"></p></div>
-      <button class="detail-button" type="button">事例を詳しく見る <span aria-hidden="true">→</span></button>
+      <div class="card-actions"><button class="detail-button" type="button">事例を詳しく見る <span aria-hidden="true">→</span></button><button class="plan-case-button" type="button">この事例をもとに計画を作る</button></div>
     </article>
   </template>
   <script src="app.js"></script>
