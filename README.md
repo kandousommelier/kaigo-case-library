@@ -16,12 +16,12 @@
 
 ## データ項目
 
-`cases.json` の各事例は `id`、`title`、`service`、`problem`、`categories`、`outcome`、`tip`、`summary`、`source` で構成します。ローカルで直接開く使い方も維持する場合は、`app.js` の `FALLBACK_CASES` にも同じ内容を反映してください。
+`cases.json` の各事例は `id`、`title`、`service`、`problemCategory`、`problemDetails`、`categories`、`approach`、`outcome`、`tip`、`suitableFor`、`supportUse`、`source` で構成します。ローカルで直接開く使い方も維持する場合は、`app.js` の `FALLBACK_CASES` にも同じ内容を反映してください。
 
 ## 「問題虫めがね」との共通ルール
 
 - 利用者の課題を「困りごと」という平易な言葉で入口にする
-- `problem`、`service`、`categories` の分類語をタグ、カード、詳細で一貫して使う
+- `problemCategory`、`service`、`categories` の分類語をタグ、カード、詳細で一貫して使う\n- 困りごと分類は「物を探すこと、準備、片付け、移動」「仕事の流れ、誰が何をするか、仕事の偏り」「記録や書類の作成」「連絡、申し送り、みんなに伝えること」「目標の共有や改善活動」の5つに統一する
 - 青緑を主色、オレンジを注目色とし、角丸の検索欄とタグで探索行動を示す
 - 専門用語より現場で使う表現を優先し、成果と「真似できるポイント」を短文で見せる
 
