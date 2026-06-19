@@ -1,18 +1,266 @@
-const FALLBACK_CASES=[{"id":1,"title":"申し送りリストで必要情報を見える化","service":"訪問介護","problemCategory":"連絡、申し送り、みんなに伝えること","problemDetails":"申し送りで伝えるべき情報が整理されておらず、確認や伝え忘れが発生していた。","categories":["情報共有","標準化","手順書の作成"],"approach":"職員が必要だと感じる申し送り情報を出し合い、情報の種類ごとに整理した申し送りリストを作成した。","outcome":"申し送り内容のムラが減り、情報共有がスムーズになった。申し送り時間の短縮にもつながった。","tip":"最初から完璧なリストを作らず、使いながら修正する前提で始める。","suitableFor":"訪問介護で、利用者ごとの注意点や手順が口頭伝達に偏っている事業所","supportUse":"問題虫めがねで『申し送り』『情報共有』『伝え忘れ』が多く出た事業所に提示し、必要な情報を洗い出すワークにつなげる。","source":"https://www.mhlw.go.jp/content/12300000/000934621.pdf"},{"id":2,"title":"買い物可否リストで問い合わせを減らす","service":"訪問介護","problemCategory":"連絡、申し送り、みんなに伝えること","problemDetails":"ヘルパーや利用者・家族からサービス内容に関する問い合わせが多く、内勤業務が圧迫されていた。","categories":["情報共有","標準化","業務の見直し"],"approach":"訪問介護で購入できるもの・できないものを整理し、市役所への確認も踏まえて、見やすいリストを作成した。","outcome":"問い合わせ時間の短縮につながった。非常勤職員への確認でも、リスト作成が役立っていると評価された。","tip":"問い合わせが多い内容から1枚のリストにまとめ、現場で見やすい大きさ・表現に直す。","suitableFor":"生活援助や買い物支援の可否について、同じ質問や確認が繰り返されている訪問介護事業所","supportUse":"問い合わせ内容を分類し、まず1テーマだけ『よく聞かれることリスト』にする短期改善テーマとして使う。","source":"https://www.mhlw.go.jp/content/12300000/000934622.pdf"},{"id":3,"title":"業務時間調査から連携マニュアルを作成","service":"通所介護","problemCategory":"仕事の流れ、誰が何をするか、仕事の偏り","problemDetails":"スタッフ間の連携や教育体制、送迎関係に課題があり、業務の交代方法や考え方が標準化されていなかった。","categories":["業務の見直し","人材育成","標準化"],"approach":"気づきシートと業務時間調査を行い、職員の意見をもとに業務の交代方法や動き方のマニュアルを作成した。","outcome":"空いた時間で何をするかが明確になり、話し合いの場が増え、利用者と関わる時間や検討時間が増えた。","tip":"業務時間調査は責めるためではなく、普段の工夫や空き時間を見つけるために使う。","suitableFor":"通所系サービスで、職員によって動き方や交代の仕方が異なり、指示待ちや連携不足が起きている事業所","supportUse":"問題虫めがねで『仕事の流れ』『職員間の連携』『誰が何をするか』が課題になった際、業務時間調査とマニュアル化の入口事例として使う。","source":"https://www.mhlw.go.jp/content/12300000/000934624.pdf"},{"id":4,"title":"PCから直接FAXして二度手間を解消","service":"居宅介護支援","problemCategory":"記録や書類の作成","problemDetails":"他事業所へFAX送信する際、PCから一度印刷してから送信しており、紙と時間のロスが発生していた。","categories":["ICT活用","事務作業の効率化","マニュアル作成"],"approach":"PCからFAXを送るためのソフトを活用し、操作マニュアルを作成・改訂しながら職員が実際に使えるようにした。","outcome":"紙のロスが少なくなり、FAX送信にかかる時間と労力の短縮につながった。PC操作スキルの向上にもつながった。","tip":"ICT化は機器導入だけでなく、写真付き・手順付きのマニュアルを作って小さな成功体験を共有する。","suitableFor":"居宅介護支援で、FAX・印刷・書類送付などの事務作業に二度手間が多い事業所","supportUse":"書類業務の工程を『作成・印刷・確認・送信・保管』に分け、二度手間を見つけるワークの参考事例にする。","source":"https://www.mhlw.go.jp/content/12300000/000934642.pdf"},{"id":5,"title":"LIFE入力を部署別マニュアルと勉強会で分散","service":"介護老人保健施設","problemCategory":"記録や書類の作成","problemDetails":"LIFE入力作業が一部職員に偏り、負荷が大きく、入力作業が進まない場面があった。","categories":["LIFE","記録の効率化","人材育成","役割分担"],"approach":"LIFEの重要性を伝える勉強会資料と、部署ごとの入力マニュアルを作成し、誰でも入力作業ができるようにした。","outcome":"一部職員への負担緩和を図り、日頃のケア記録を今後のケアに生かす意識づけにつながった。","tip":"LIFE対応は入力担当者だけの問題にせず、日々のケア記録が何に使われるかを全職員で共有する。","suitableFor":"施設系サービスで、LIFEや記録入力が特定職員に集中し、現場全体の理解が不足している施設","supportUse":"記録業務の属人化を見える化し、入力作業・記録の意味づけ・教育資料作成を分けて検討する際に使う。","source":"https://www.mhlw.go.jp/content/12300000/001016616.pdf"}];
-const PROBLEM_CATEGORIES=["物を探すこと、準備、片付け、移動","仕事の流れ、誰が何をするか、仕事の偏り","記録や書類の作成","連絡、申し送り、みんなに伝えること","目標の共有や改善活動"];
-const state={cases:[],query:"",filters:{problem:new Set(),service:new Set(),category:new Set()},sort:"recommended"};
-const grid=document.querySelector("#case-grid"),count=document.querySelector("#result-count"),empty=document.querySelector("#empty-state"),dialog=document.querySelector("#case-dialog");
-async function loadCases(){try{const response=await fetch("cases.json");if(!response.ok)throw new Error();state.cases=await response.json()}catch(error){state.cases=FALLBACK_CASES}buildFilters();render()}
-function unique(field){return[...new Set(state.cases.flatMap(item=>Array.isArray(item[field])?item[field]:[item[field]]))]}
-function buildFilters(){[{key:"problem",element:"#problem-tags",values:PROBLEM_CATEGORIES},{key:"service",element:"#service-tags",values:unique("service").sort((a,b)=>a.localeCompare(b,"ja"))},{key:"category",element:"#category-tags",values:unique("categories").sort((a,b)=>a.localeCompare(b,"ja"))}].forEach(group=>{const container=document.querySelector(group.element);container.replaceChildren(...group.values.map(value=>{const button=document.createElement("button");button.type="button";button.className="filter-tag";button.textContent=value;button.setAttribute("aria-pressed","false");button.addEventListener("click",()=>toggleFilter(group.key,value,button));return button}))})}
-function toggleFilter(type,value,button){const selected=state.filters[type];selected.has(value)?selected.delete(value):selected.add(value);button.setAttribute("aria-pressed",String(selected.has(value)));render()}
-function normalized(value){return value.toLocaleLowerCase("ja").replace(/\s+/g,"")}
-function getResults(){const query=normalized(state.query);const results=state.cases.filter(item=>{const searchable=normalized([item.title,item.service,item.problemCategory,item.problemDetails,...item.categories,item.approach,item.outcome,item.tip,item.suitableFor,item.supportUse].join(" "));return(!query||searchable.includes(query))&&(!state.filters.problem.size||state.filters.problem.has(item.problemCategory))&&(!state.filters.service.size||state.filters.service.has(item.service))&&(!state.filters.category.size||item.categories.some(value=>state.filters.category.has(value)))});return state.sort==="title"?results.sort((a,b)=>a.title.localeCompare(b.title,"ja")):results}
-function render(){const results=getResults();count.textContent=results.length;grid.replaceChildren(...results.map(createCard));empty.hidden=results.length!==0;grid.hidden=results.length===0}
-function createCard(item){const card=document.querySelector("#case-template").content.firstElementChild.cloneNode(true);card.querySelector(".service-label").textContent=item.service;card.querySelector(".case-number").textContent="CASE "+String(item.id).padStart(2,"0");card.querySelector(".case-title").textContent=item.title;card.querySelector(".case-problem").textContent=item.problemCategory;card.querySelector(".case-outcome").textContent=item.outcome;card.querySelector(".case-tip").textContent=item.tip;card.querySelector(".case-suitable").textContent=item.suitableFor;card.querySelector(".category-list").replaceChildren(...item.categories.map(value=>{const tag=document.createElement("span");tag.className="category-chip";tag.textContent=value;return tag}));card.querySelector(".detail-button").addEventListener("click",()=>openDetail(item));return card}
-function openDetail(item){const content=document.querySelector("#dialog-content");content.replaceChildren();const service=document.createElement("p");service.className="dialog-service";service.textContent=item.service+" / "+item.problemCategory;const title=document.createElement("h2");title.id="dialog-title";title.textContent=item.title;content.append(service,title);[["困っていたこと",item.problemDetails],["取り組んだこと",item.approach],["成果",item.outcome],["真似できるポイント",item.tip],["この事例が向いている施設",item.suitableFor],["伴走支援での使い方",item.supportUse]].forEach(([heading,text])=>{const block=document.createElement("section");block.className="dialog-block";const h3=document.createElement("h3");h3.textContent=heading;const p=document.createElement("p");p.textContent=text;block.append(h3,p);content.append(block)});const link=document.createElement("a");link.className="source-link";link.href=item.source;link.target="_blank";link.rel="noopener noreferrer";link.textContent="出典リンクを開く ↗";content.append(link);dialog.showModal()}
-function reset(){state.query="";Object.values(state.filters).forEach(set=>set.clear());document.querySelector("#search-input").value="";document.querySelectorAll(".filter-tag").forEach(button=>button.setAttribute("aria-pressed","false"));render()}
-document.querySelector("#search-form").addEventListener("submit",event=>{event.preventDefault();state.query=document.querySelector("#search-input").value.trim();render();document.querySelector("#library-title").scrollIntoView({behavior:"smooth",block:"start"})});
-document.querySelector("#search-input").addEventListener("input",event=>{state.query=event.target.value.trim();render()});
-document.querySelector("#sort-select").addEventListener("change",event=>{state.sort=event.target.value;render()});
-document.querySelector("#reset-button").addEventListener("click",reset);document.querySelector("#empty-reset").addEventListener("click",reset);document.querySelector("#dialog-close").addEventListener("click",()=>dialog.close());dialog.addEventListener("click",event=>{if(event.target===dialog)dialog.close()});loadCases();
+const FALLBACK_CASES = [
+  {
+    "id": 1,
+    "title": "申し送りリストで必要情報を見える化",
+    "service": "訪問介護",
+    "problemCategory": "連絡、申し送り、みんなに伝えること",
+    "problemDetails": "申し送りで伝えるべき情報が整理されておらず、確認や伝え忘れが発生していた。",
+    "categories": ["情報共有", "標準化", "手順書の作成"],
+    "approach": "職員が必要だと感じる申し送り情報を出し合い、情報の種類ごとに整理した申し送りリストを作成した。",
+    "outcome": "申し送り内容のムラが減り、情報共有がスムーズになった。申し送り時間の短縮にもつながった。",
+    "tip": "最初から完璧なリストを作らず、使いながら修正する前提で始める。",
+    "suitableFor": "訪問介護で、利用者ごとの注意点や手順が口頭伝達に偏っている事業所",
+    "supportUse": "問題虫めがねで『申し送り』『情報共有』『伝え忘れ』が多く出た事業所に提示し、必要な情報を洗い出すワークにつなげる。",
+    "source": "https://www.mhlw.go.jp/content/12300000/000934621.pdf",
+    "sourceType": "individual-pdf",
+    "sourceTitle": "令和3年度 推進スキル研修受講事業所によるモデル事業｜アースサポート新宿",
+    "sourcePdf": "https://www.mhlw.go.jp/content/12300000/000934621.pdf",
+    "sourceNote": "厚生労働省掲載の個別事例PDFをもとに短く要約"
+  },
+  {
+    "id": 2,
+    "title": "買い物可否リストで問い合わせを減らす",
+    "service": "訪問介護",
+    "problemCategory": "連絡、申し送り、みんなに伝えること",
+    "problemDetails": "ヘルパーや利用者・家族からサービス内容に関する問い合わせが多く、内勤業務が圧迫されていた。",
+    "categories": ["情報共有", "標準化", "業務の見直し"],
+    "approach": "訪問介護で購入できるもの・できないものを整理し、市役所への確認も踏まえて、見やすいリストを作成した。",
+    "outcome": "問い合わせ時間の短縮につながった。非常勤職員への確認でも、リスト作成が役立っていると評価された。",
+    "tip": "問い合わせが多い内容から1枚のリストにまとめ、現場で見やすい大きさ・表現に直す。",
+    "suitableFor": "生活援助や買い物支援の可否について、同じ質問や確認が繰り返されている訪問介護事業所",
+    "supportUse": "問い合わせ内容を分類し、まず1テーマだけ『よく聞かれることリスト』にする短期改善テーマとして使う。",
+    "source": "https://www.mhlw.go.jp/content/12300000/000934622.pdf",
+    "sourceType": "individual-pdf",
+    "sourceTitle": "令和3年度 推進スキル研修受講事業所によるモデル事業｜アースサポートふじみ野",
+    "sourcePdf": "https://www.mhlw.go.jp/content/12300000/000934622.pdf",
+    "sourceNote": "厚生労働省掲載の個別事例PDFをもとに短く要約"
+  },
+  {
+    "id": 3,
+    "title": "業務時間調査から連携マニュアルを作成",
+    "service": "通所介護",
+    "problemCategory": "仕事の流れ、誰が何をするか、仕事の偏り",
+    "problemDetails": "スタッフ間の連携や教育体制、送迎関係に課題があり、業務の交代方法や考え方が標準化されていなかった。",
+    "categories": ["業務の見直し", "人材育成", "標準化"],
+    "approach": "気づきシートと業務時間調査を行い、職員の意見をもとに業務の交代方法や動き方のマニュアルを作成した。",
+    "outcome": "空いた時間で何をするかが明確になり、話し合いの場が増え、利用者と関わる時間や検討時間が増えた。",
+    "tip": "業務時間調査は責めるためではなく、普段の工夫や空き時間を見つけるために使う。",
+    "suitableFor": "通所系サービスで、職員によって動き方や交代の仕方が異なり、指示待ちや連携不足が起きている事業所",
+    "supportUse": "問題虫めがねで『仕事の流れ』『職員間の連携』『誰が何をするか』が課題になった際、業務時間調査とマニュアル化の入口事例として使う。",
+    "source": "https://www.mhlw.go.jp/content/12300000/000934624.pdf",
+    "sourceType": "individual-pdf",
+    "sourceTitle": "令和3年度 推進スキル研修受講事業所によるモデル事業｜いきいき稲富デイサービスセンター",
+    "sourcePdf": "https://www.mhlw.go.jp/content/12300000/000934624.pdf",
+    "sourceNote": "厚生労働省掲載の個別事例PDFをもとに短く要約"
+  },
+  {
+    "id": 4,
+    "title": "PCから直接FAXして二度手間を解消",
+    "service": "居宅介護支援",
+    "problemCategory": "記録や書類の作成",
+    "problemDetails": "他事業所へFAX送信する際、PCから一度印刷してから送信しており、紙と時間のロスが発生していた。",
+    "categories": ["ICT活用", "事務作業の効率化", "マニュアル作成"],
+    "approach": "PCからFAXを送るためのソフトを活用し、操作マニュアルを作成・改訂しながら職員が実際に使えるようにした。",
+    "outcome": "紙のロスが少なくなり、FAX送信にかかる時間と労力の短縮につながった。PC操作スキルの向上にもつながった。",
+    "tip": "ICT化は機器導入だけでなく、写真付き・手順付きのマニュアルを作って小さな成功体験を共有する。",
+    "suitableFor": "居宅介護支援で、FAX・印刷・書類送付などの事務作業に二度手間が多い事業所",
+    "supportUse": "書類業務の工程を『作成・印刷・確認・送信・保管』に分け、二度手間を見つけるワークの参考事例にする。",
+    "source": "https://www.mhlw.go.jp/content/12300000/000934642.pdf",
+    "sourceType": "individual-pdf",
+    "sourceTitle": "令和3年度 推進スキル研修受講事業所によるモデル事業｜豊見城中央病院ケアプランセンター",
+    "sourcePdf": "https://www.mhlw.go.jp/content/12300000/000934642.pdf",
+    "sourceNote": "厚生労働省掲載の個別事例PDFをもとに短く要約"
+  },
+  {
+    "id": 5,
+    "title": "LIFE入力を部署別マニュアルと勉強会で分散",
+    "service": "介護老人保健施設",
+    "problemCategory": "記録や書類の作成",
+    "problemDetails": "LIFE入力作業が一部職員に偏り、負荷が大きく、入力作業が進まない場面があった。",
+    "categories": ["LIFE", "記録の効率化", "人材育成", "役割分担"],
+    "approach": "LIFEの重要性を伝える勉強会資料と、部署ごとの入力マニュアルを作成し、誰でも入力作業ができるようにした。",
+    "outcome": "一部職員への負担緩和を図り、日頃のケア記録を今後のケアに生かす意識づけにつながった。",
+    "tip": "LIFE対応は入力担当者だけの問題にせず、日々のケア記録が何に使われるかを全職員で共有する。",
+    "suitableFor": "施設系サービスで、LIFEや記録入力が特定職員に集中し、現場全体の理解が不足している施設",
+    "supportUse": "記録業務の属人化を見える化し、入力作業・記録の意味づけ・教育資料作成を分けて検討する際に使う。",
+    "source": "https://www.mhlw.go.jp/content/12300000/001016616.pdf",
+    "sourceType": "individual-pdf",
+    "sourceTitle": "令和3年度 推進スキル研修受講事業所によるモデル事業｜介護老人保健施設さくらがわ",
+    "sourcePdf": "https://www.mhlw.go.jp/content/12300000/001016616.pdf",
+    "sourceNote": "厚生労働省掲載の個別事例PDFをもとに短く要約"
+  }
+];
+
+const PROBLEM_CATEGORIES = ["物を探すこと、準備、片付け、移動", "仕事の流れ、誰が何をするか、仕事の偏り", "記録や書類の作成", "連絡、申し送り、みんなに伝えること", "目標の共有や改善活動"];
+const state = { cases: [], query: "", filters: { problem: new Set(), service: new Set(), category: new Set() }, sort: "recommended" };
+const grid = document.querySelector("#case-grid"), count = document.querySelector("#result-count"), empty = document.querySelector("#empty-state"), dialog = document.querySelector("#case-dialog");
+
+async function loadCases() {
+  try {
+    const response = await fetch("cases.json");
+    if (!response.ok) throw new Error();
+    state.cases = await response.json();
+  } catch (error) {
+    state.cases = FALLBACK_CASES;
+  }
+  buildFilters();
+  render();
+}
+
+function unique(field) {
+  return [...new Set(state.cases.flatMap(item => Array.isArray(item[field]) ? item[field] : [item[field]]).filter(Boolean))];
+}
+
+function buildFilters() {
+  [
+    { key: "problem", element: "#problem-tags", values: PROBLEM_CATEGORIES },
+    { key: "service", element: "#service-tags", values: unique("service").sort((a, b) => a.localeCompare(b, "ja")) },
+    { key: "category", element: "#category-tags", values: unique("categories").sort((a, b) => a.localeCompare(b, "ja")) }
+  ].forEach(group => {
+    const container = document.querySelector(group.element);
+    container.replaceChildren(...group.values.map(value => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "filter-tag";
+      button.textContent = value;
+      button.setAttribute("aria-pressed", "false");
+      button.addEventListener("click", () => toggleFilter(group.key, value, button));
+      return button;
+    }));
+  });
+}
+
+function toggleFilter(type, value, button) {
+  const selected = state.filters[type];
+  selected.has(value) ? selected.delete(value) : selected.add(value);
+  button.setAttribute("aria-pressed", String(selected.has(value)));
+  render();
+}
+
+function normalized(value) {
+  return String(value || "").toLocaleLowerCase("ja").replace(/\s+/g, "");
+}
+
+function getResults() {
+  const query = normalized(state.query);
+  const results = state.cases.filter(item => {
+    const searchable = normalized([
+      item.title,
+      item.service,
+      item.problemCategory,
+      item.problemDetails,
+      ...(item.categories || []),
+      item.approach,
+      item.outcome,
+      item.tip,
+      item.suitableFor,
+      item.supportUse,
+      item.sourceTitle,
+      item.sourceNote,
+      item.sourceType
+    ].join(" "));
+    return (!query || searchable.includes(query)) &&
+      (!state.filters.problem.size || state.filters.problem.has(item.problemCategory)) &&
+      (!state.filters.service.size || state.filters.service.has(item.service)) &&
+      (!state.filters.category.size || (item.categories || []).some(value => state.filters.category.has(value)));
+  });
+  return state.sort === "title" ? results.sort((a, b) => a.title.localeCompare(b.title, "ja")) : results;
+}
+
+function render() {
+  const results = getResults();
+  count.textContent = results.length;
+  grid.replaceChildren(...results.map(createCard));
+  empty.hidden = results.length !== 0;
+  grid.hidden = results.length === 0;
+}
+
+function createCard(item) {
+  const card = document.querySelector("#case-template").content.firstElementChild.cloneNode(true);
+  card.querySelector(".service-label").textContent = item.service;
+  card.querySelector(".case-number").textContent = "CASE " + String(item.id).padStart(2, "0");
+  card.querySelector(".case-title").textContent = item.title;
+  card.querySelector(".case-problem").textContent = item.problemCategory;
+  card.querySelector(".case-outcome").textContent = item.outcome;
+  card.querySelector(".case-tip").textContent = item.tip;
+  card.querySelector(".case-suitable").textContent = item.suitableFor;
+  card.querySelector(".category-list").replaceChildren(...(item.categories || []).map(value => {
+    const tag = document.createElement("span");
+    tag.className = "category-chip";
+    tag.textContent = value;
+    return tag;
+  }));
+  const source = document.createElement("p");
+  source.className = "card-source";
+  source.textContent = item.sourceTitle ? "出典：" + item.sourceTitle : "出典：厚生労働省掲載資料";
+  card.querySelector(".detail-button").before(source);
+  card.querySelector(".detail-button").addEventListener("click", () => openDetail(item));
+  return card;
+}
+
+function openDetail(item) {
+  const content = document.querySelector("#dialog-content");
+  content.replaceChildren();
+  const service = document.createElement("p");
+  service.className = "dialog-service";
+  service.textContent = item.service + " / " + item.problemCategory;
+  const title = document.createElement("h2");
+  title.id = "dialog-title";
+  title.textContent = item.title;
+  content.append(service, title);
+  [
+    ["困っていたこと", item.problemDetails],
+    ["取り組んだこと", item.approach],
+    ["成果", item.outcome],
+    ["真似できるポイント", item.tip],
+    ["この事例が向いている施設", item.suitableFor],
+    ["伴走支援での使い方", item.supportUse],
+    ["出典資料", item.sourceTitle || item.sourceNote || "厚生労働省掲載資料"],
+    ["出典メモ", item.sourceNote]
+  ].filter(([, text]) => Boolean(text)).forEach(([heading, text]) => {
+    const block = document.createElement("section");
+    block.className = "dialog-block";
+    const h3 = document.createElement("h3");
+    h3.textContent = heading;
+    const p = document.createElement("p");
+    p.textContent = text;
+    block.append(h3, p);
+    content.append(block);
+  });
+  const link = document.createElement("a");
+  link.className = "source-link";
+  link.href = item.sourcePdf || item.source;
+  link.target = "_blank";
+  link.rel = "noopener noreferrer";
+  link.textContent = "出典PDFを開く ↗";
+  content.append(link);
+  dialog.showModal();
+}
+
+function reset() {
+  state.query = "";
+  Object.values(state.filters).forEach(set => set.clear());
+  document.querySelector("#search-input").value = "";
+  document.querySelectorAll(".filter-tag").forEach(button => button.setAttribute("aria-pressed", "false"));
+  render();
+}
+
+document.querySelector("#search-form").addEventListener("submit", event => {
+  event.preventDefault();
+  state.query = document.querySelector("#search-input").value.trim();
+  render();
+  document.querySelector("#library-title").scrollIntoView({ behavior: "smooth", block: "start" });
+});
+document.querySelector("#search-input").addEventListener("input", event => {
+  state.query = event.target.value.trim();
+  render();
+});
+document.querySelector("#sort-select").addEventListener("change", event => {
+  state.sort = event.target.value;
+  render();
+});
+document.querySelector("#reset-button").addEventListener("click", reset);
+document.querySelector("#empty-reset").addEventListener("click", reset);
+document.querySelector("#dialog-close").addEventListener("click", () => dialog.close());
+dialog.addEventListener("click", event => { if (event.target === dialog) dialog.close(); });
+loadCases();
