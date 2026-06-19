@@ -230,7 +230,7 @@ function fallbackCopyText(text,done){
   const area=document.createElement("textarea");area.value=text;document.body.append(area);area.select();document.execCommand("copy");area.remove();done();
 }
 function renderCausalStructure(issues){
-  const section=document.querySelector("#causal-draft");section.hidden=false;
+  const section=document.querySelector("#causal-draft");section.removeAttribute("hidden");section.hidden=false;section.style.removeProperty("display");
   latestCausalStructure=buildCausalStructure(issues);
   const layers=document.querySelector("#causal-layers");layers.replaceChildren();
   CAUSAL_LAYER_DEFINITIONS.forEach((definition,index)=>{
