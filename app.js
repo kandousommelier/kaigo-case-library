@@ -9,10 +9,130 @@ function toggleFilter(type,value,button){const selected=state.filters[type];sele
 function normalized(value){return value.toLocaleLowerCase("ja").replace(/\s+/g,"")}
 function getResults(){const query=normalized(state.query);const results=state.cases.filter(item=>{const searchable=normalized([item.title,item.service,item.problemCategory,item.problemDetails,...item.categories,item.approach,item.outcome,item.tip,item.suitableFor,item.supportUse,item.sourceTitle,item.sourceNote||""].join(" "));return(!query||searchable.includes(query))&&(!state.filters.problem.size||state.filters.problem.has(item.problemCategory))&&(!state.filters.service.size||state.filters.service.has(item.service))&&(!state.filters.category.size||item.categories.some(value=>state.filters.category.has(value)))});return state.sort==="title"?results.sort((a,b)=>a.title.localeCompare(b.title,"ja")):results}
 function render(){const results=getResults();count.textContent=results.length;grid.replaceChildren(...results.map(createCard));empty.hidden=results.length!==0;grid.hidden=results.length===0}
-function createCard(item){const card=document.querySelector("#case-template").content.firstElementChild.cloneNode(true);card.querySelector(".service-label").textContent=item.service;card.querySelector(".case-number").textContent="CASE "+String(item.id).padStart(2,"0");card.querySelector(".case-title").textContent=item.title;card.querySelector(".case-source").textContent="出典："+item.sourceTitle;card.querySelector(".case-problem").textContent=item.problemCategory;card.querySelector(".case-outcome").textContent=item.outcome;card.querySelector(".case-tip").textContent=item.tip;card.querySelector(".case-suitable").textContent=item.suitableFor;card.querySelector(".category-list").replaceChildren(...item.categories.map(value=>{const tag=document.createElement("span");tag.className="category-chip";tag.textContent=value;return tag}));card.querySelector(".detail-button").addEventListener("click",()=>openDetail(item));return card}
-function openDetail(item){const content=document.querySelector("#dialog-content");content.replaceChildren();const service=document.createElement("p");service.className="dialog-service";service.textContent=item.service+" / "+item.problemCategory;const title=document.createElement("h2");title.id="dialog-title";title.textContent=item.title;const sourceMeta=document.createElement("p");sourceMeta.className="dialog-source";sourceMeta.textContent="出典："+item.sourceTitle+(item.sourcePage?"（"+item.sourcePage+"）":item.sourceNote?"（"+item.sourceNote+"）":"");content.append(service,title,sourceMeta);[["困っていたこと",item.problemDetails],["取り組んだこと",item.approach],["成果",item.outcome],["真似できるポイント",item.tip],["この事例が向いている施設",item.suitableFor],["伴走支援での使い方",item.supportUse]].forEach(([heading,text])=>{const block=document.createElement("section");block.className="dialog-block";const h3=document.createElement("h3");h3.textContent=heading;const p=document.createElement("p");p.textContent=text;block.append(h3,p);content.append(block)});const link=document.createElement("a");link.className="source-link";link.href=item.sourcePdf||item.source;link.target="_blank";link.rel="noopener noreferrer";link.textContent="出典リンクを開く ↗";content.append(link);dialog.showModal()}
+function createCard(item){const card=document.querySelector("#case-template").content.firstElementChild.cloneNode(true);card.querySelector(".service-label").textContent=item.service;card.querySelector(".case-number").textContent="CASE "+String(item.id).padStart(2,"0");card.querySelector(".case-title").textContent=item.title;card.querySelector(".case-source").textContent="出典："+item.sourceTitle;card.querySelector(".case-problem").textContent=item.problemCategory;card.querySelector(".case-outcome").textContent=item.outcome;card.querySelector(".case-tip").textContent=item.tip;card.querySelector(".case-suitable").textContent=item.suitableFor;card.querySelector(".category-list").replaceChildren(...item.categories.map(value=>{const tag=document.createElement("span");tag.className="category-chip";tag.textContent=value;return tag}));card.querySelector(".detail-button").addEventListener("click",()=>openDetail(item));card.querySelector(".plan-case-button").addEventListener("click",()=>createPlanFromCase(item));return card}
+function openDetail(item){const content=document.querySelector("#dialog-content");content.replaceChildren();const service=document.createElement("p");service.className="dialog-service";service.textContent=item.service+" / "+item.problemCategory;const title=document.createElement("h2");title.id="dialog-title";title.textContent=item.title;const sourceMeta=document.createElement("p");sourceMeta.className="dialog-source";sourceMeta.textContent="出典："+item.sourceTitle+(item.sourcePage?"（"+item.sourcePage+"）":item.sourceNote?"（"+item.sourceNote+"）":"");content.append(service,title,sourceMeta);[["困っていたこと",item.problemDetails],["取り組んだこと",item.approach],["成果",item.outcome],["真似できるポイント",item.tip],["この事例が向いている施設",item.suitableFor],["伴走支援での使い方",item.supportUse]].forEach(([heading,text])=>{const block=document.createElement("section");block.className="dialog-block";const h3=document.createElement("h3");h3.textContent=heading;const p=document.createElement("p");p.textContent=text;block.append(h3,p);content.append(block)});const link=document.createElement("a");link.className="source-link";link.href=item.sourcePdf||item.source;link.target="_blank";link.rel="noopener noreferrer";link.textContent="出典リンクを開く ↗";content.append(link);const planButton=document.createElement("button");planButton.type="button";planButton.className="dialog-plan-button";planButton.textContent="この事例をもとに計画を作る";planButton.addEventListener("click",()=>{dialog.close();createPlanFromCase(item)});content.append(planButton);dialog.showModal()}
 function reset(){state.query="";Object.values(state.filters).forEach(set=>set.clear());document.querySelector("#search-input").value="";document.querySelectorAll(".filter-tag").forEach(button=>button.setAttribute("aria-pressed","false"));render()}
 document.querySelector("#search-form").addEventListener("submit",event=>{event.preventDefault();state.query=document.querySelector("#search-input").value.trim();render();document.querySelector("#library-title").scrollIntoView({behavior:"smooth",block:"start"})});
 document.querySelector("#search-input").addEventListener("input",event=>{state.query=event.target.value.trim();render()});
 document.querySelector("#sort-select").addEventListener("change",event=>{state.sort=event.target.value;render()});
-document.querySelector("#reset-button").addEventListener("click",reset);document.querySelector("#empty-reset").addEventListener("click",reset);document.querySelector("#dialog-close").addEventListener("click",()=>dialog.close());dialog.addEventListener("click",event=>{if(event.target===dialog)dialog.close()});loadCases();
+document.querySelector("#reset-button").addEventListener("click",reset);document.querySelector("#empty-reset").addEventListener("click",reset);document.querySelector("#dialog-close").addEventListener("click",()=>dialog.close());dialog.addEventListener("click",event=>{if(event.target===dialog)dialog.close()});
+const Q1_CATEGORY_MAP={
+  "移動・準備・間接業務":["物を探すこと、準備、片付け、移動"],
+  "記録・情報共有":["記録や書類の作成","連絡、申し送り、みんなに伝えること"],
+  "直接ケア・支援の進め方":["仕事の流れ、誰が何をするか、仕事の偏り"],
+  "会議・役割分担・改善の進め方":["仕事の流れ、誰が何をするか、仕事の偏り","目標の共有や改善活動"],
+  "人材・働き方":["仕事の流れ、誰が何をするか、仕事の偏り","目標の共有や改善活動"]
+};
+const DIRECTION_CATEGORY_MAP={
+  "道具（ICT）":["ICT活用","記録の効率化","情報共有"],
+  "道具（介護テクノロジー）":["介護ロボット","安全な介護","業務の見直し"],
+  "運用ルール":["標準化","手順書の作成","マニュアル作成"],
+  "業務プロセス変更":["業務の見直し","役割分担"],
+  "制度設計":["人材育成","改善活動","標準化"]
+};
+let csvIssues=[];
+function parseCSV(text){
+  const rows=[];let row=[],cell="",quoted=false;
+  for(let i=0;i<text.length;i++){const ch=text[i],next=text[i+1];
+    if(ch==='"'&&quoted&&next==='"'){cell+='"';i++}
+    else if(ch==='"'){quoted=!quoted}
+    else if(ch===","&&!quoted){row.push(cell);cell=""}
+    else if((ch==="\n"||ch==="\r")&&!quoted){if(ch==="\r"&&next==="\n")i++;row.push(cell);if(row.some(v=>v.trim()))rows.push(row);row=[];cell=""}
+    else cell+=ch
+  }
+  row.push(cell);if(row.some(v=>v.trim()))rows.push(row);
+  if(rows.length<2)return[];
+  const headers=rows[0].map((h,i)=>i===0?h.replace(/^\uFEFF/,"").trim():h.trim());
+  return rows.slice(1).map(values=>Object.fromEntries(headers.map((h,i)=>[h,(values[i]||"").trim()])));
+}
+function csvValue(row,key){const exact=Object.keys(row).find(h=>h===key);if(exact)return row[exact];const prefix=key.split("｜")[0];const found=Object.keys(row).find(h=>h.startsWith(prefix+"｜")||h.startsWith(prefix+"|")||h===prefix);return found?row[found]:""}
+function mapByIncludes(value,map){const result=[];Object.entries(map).forEach(([label,values])=>{if(value.includes(label))values.forEach(v=>{if(!result.includes(v))result.push(v)})});return result}
+function calculateCsvIssues(rows){
+  const raw=rows.map((row,index)=>({
+    id:index+1,office:csvValue(row,"事業所名"),service:csvValue(row,"事業所種別"),role:csvValue(row,"回答者の立場"),
+    theme:csvValue(row,"Q1｜今回のワークで扱うテーマ"),currentItems:csvValue(row,"Q2｜今の現場で当てはまるもの"),
+    current:csvValue(row,"Q3｜今の現場の状態を一言で表してください"),desired:csvValue(row,"Q4｜こうなっていたらいいなと思う状態"),
+    gap:csvValue(row,"Q5｜現状との差が一番大きいもの"),resolved:csvValue(row,"Q6｜この問題が解決された状態"),
+    direction:csvValue(row,"Q7｜課題を解決するための方向性")
+  })).filter(x=>x.theme||x.current||x.gap);
+  const themeCounts={},gapCounts={},roles={};
+  raw.forEach(x=>{themeCounts[x.theme]=(themeCounts[x.theme]||0)+1;gapCounts[x.gap]=(gapCounts[x.gap]||0)+1;(roles[x.theme]||(roles[x.theme]=new Set())).add(x.role)});
+  return raw.map(x=>{
+    const easy=x.direction.includes("運用ルール")||x.direction.includes("業務プロセス変更")?3:x.direction.includes("制度設計")?1:2;
+    const score=Math.round((themeCounts[x.theme]||1)*2+(gapCounts[x.gap]||1)*1.5+(roles[x.theme]?.size||1)*2+easy);
+    return {...x,title:x.gap||x.current||x.theme+"の改善",problemCategories:mapByIncludes(x.theme,Q1_CATEGORY_MAP),categories:mapByIncludes(x.direction,DIRECTION_CATEGORY_MAP),priorityScore:score,priorityReason:"同テーマ "+(themeCounts[x.theme]||1)+"件・同じギャップ "+(gapCounts[x.gap]||1)+"件・回答者立場 "+(roles[x.theme]?.size||1)+"種類"+(x.direction.includes("制度設計")?"。中長期テーマとして整理":"。着手しやすさを加味")};
+  }).sort((a,b)=>b.priorityScore-a.priorityScore);
+}
+function plannerTokens(text){return String(text||"").toLocaleLowerCase("ja").split(/[、,・。/／\s]+/).map(value=>value.trim()).filter(value=>value.length>1)}
+function findRelatedCases(issue,limit=5){
+  const keywords=plannerTokens([issue.title,issue.current,issue.desired,issue.gap,issue.resolved,issue.keywords].join(" "));
+  return state.cases.map(item=>{
+    let score=0;if(issue.problemCategories?.includes(item.problemCategory))score+=8;
+    (issue.categories||[]).forEach(c=>{if(item.categories.includes(c))score+=4});
+    if(issue.service&&item.service&&(item.service.includes(issue.service)||issue.service.includes(item.service)))score+=5;
+    const hay=normalized([item.title,item.problemDetails,item.approach,item.outcome,item.tip,item.supportUse].join(" "));
+    keywords.forEach(k=>{if(hay.includes(k))score+=2});
+    return{item,score}
+  }).sort((a,b)=>b.score-a.score||a.item.id-b.item.id).slice(0,Math.max(3,limit)).map(x=>x.item);
+}
+function directionText(issue){return issue.direction||issue.categories?.join("、")||"業務の見直しと小さな試行"}
+function firstTwoWeeks(issue){
+  const d=directionText(issue);
+  if(d.includes("制度設計"))return"1. 関係職種から小チームを選ぶ\n2. 現状と対象範囲を合意する\n3. 必要な制度・教育の論点を整理する";
+  if(d.includes("ICT")||d.includes("テクノロジー"))return"1. 現在の業務工程と二度手間を記録する\n2. 1場面・少人数で道具を試す\n3. 操作と安全上の気づきを集める";
+  if(d.includes("運用ルール"))return"1. 現在のやり方を職員3名以上から聞く\n2. 必須手順を一枚にまとめる\n3. 1週間試して直す";
+  return"1. 対象業務の流れと所要時間を書き出す\n2. 役割・順番を一つだけ変えて試す\n3. 実施前後の困りごとを記録する";
+}
+function metricText(issue){
+  const p=issue.problemCategories?.join(" ")||"";
+  if(p.includes("記録"))return"記録・書類にかかる時間、転記回数、未記入件数";
+  if(p.includes("連絡"))return"確認回数、伝達漏れ件数、申し送り時間";
+  if(p.includes("物を探す"))return"探し物の回数・時間、準備の往復回数";
+  return"対象業務の所要時間、職員の負担感、利用者と関わる時間";
+}
+function buildPlan(issue){
+  const related=findRelatedCases(issue);
+  const current=issue.current||issue.currentItems||issue.problemDetails||"現場の状況をチームで確認する";
+  const desired=issue.desired||issue.resolved||issue.outcome||"職員が迷わず安全に業務を進められる状態";
+  return{issue,related,fields:[
+    ["課題名",issue.title],["現状",current],["ありたい姿",desired],
+    ["優先順位の理由",issue.priorityReason||"選択した課題・事例を起点に、現場で小さく試せる内容として整理"],
+    ["取り組む方向性",directionText(issue)],["最初の2週間でやること",firstTwoWeeks(issue)],
+    ["1か月後の確認ポイント","試行を続けるか、手順を修正するか、対象を広げるかをチームで確認する"],
+    ["役割分担","推進役：日程と記録／現場リーダー：試行の調整／担当職員：実施と気づきの共有／管理者：判断と支援"],
+    ["成果指標",metricText(issue)],["注意点","数値だけで評価せず、利用者への影響と職員の負担を確認する。最初から全体展開せず小さく試す。"]
+  ]};
+}
+function planText(plan){return plan.fields.map(([h,v])=>"【"+h+"】\n"+v).join("\n\n")+"\n\n【参考事例】\n"+plan.related.map((x,i)=>(i+1)+". "+x.title+"（"+x.service+"）").join("\n")}
+function renderPlan(issue){
+  const plan=buildPlan(issue),output=document.querySelector("#plan-output");output.hidden=false;output.replaceChildren();
+  const head=document.createElement("div");head.className="plan-output-head";const title=document.createElement("h3");title.textContent="改善計画のたたき台";const copy=document.createElement("button");copy.type="button";copy.className="copy-plan-button";copy.textContent="計画案をコピー";copy.addEventListener("click",()=>copyPlan(plan,copy));head.append(title,copy);
+  const fields=document.createElement("div");fields.className="plan-fields";
+  plan.fields.forEach(([heading,value])=>{const block=document.createElement("section");block.className="plan-field";const h=document.createElement("h4");h.textContent=heading;const p=document.createElement("p");p.textContent=value;block.append(h,p);fields.append(block)});
+  const related=document.createElement("section");related.className="plan-field related-cases";const rh=document.createElement("h4");rh.textContent="参考事例";const list=document.createElement("div");list.className="related-case-list";plan.related.forEach(item=>{const card=document.createElement("div");card.className="related-case";const strong=document.createElement("strong");strong.textContent=item.title;const meta=document.createElement("span");meta.textContent=item.service+" / "+item.problemCategory;card.append(strong,meta);list.append(card)});related.append(rh,list);fields.append(related);output.append(head,fields);output.scrollIntoView({behavior:"smooth",block:"start"});
+}
+async function copyPlan(plan,button){const text=planText(plan);try{await navigator.clipboard.writeText(text)}catch(error){const area=document.createElement("textarea");area.value=text;document.body.append(area);area.select();document.execCommand("copy");area.remove()}button.textContent="コピーしました";setTimeout(()=>button.textContent="計画案をコピー",1800)}
+function selectPlannerTab(name){
+  document.querySelectorAll(".planner-tab").forEach(b=>{const active=b.dataset.plannerTab===name;b.classList.toggle("is-active",active);b.setAttribute("aria-selected",String(active))});
+  ["csv","manual","case"].forEach(key=>document.querySelector("#planner-"+key+"-panel").hidden=key!==name);
+}
+function createPlanFromCase(item){
+  selectPlannerTab("case");document.querySelector("#selected-case-message").textContent="選択中："+item.title;
+  renderPlan({title:item.title,current:item.problemDetails,desired:item.outcome,problemCategories:[item.problemCategory],categories:item.categories,service:item.service,keywords:item.tip+" "+item.supportUse,direction:item.categories.join("、"),priorityReason:"既存事例を参考に、同じ困りごと分類と取組分類を優先"});
+  document.querySelector("#planner").scrollIntoView({behavior:"smooth",block:"start"});
+}
+function renderCsvSummary(rows,issues){
+  const offices=[...new Set(issues.map(x=>x.office).filter(Boolean))],services=[...new Set(issues.map(x=>x.service).filter(Boolean))],themeCounts={};issues.forEach(x=>themeCounts[x.theme]=(themeCounts[x.theme]||0)+1);
+  const cards=[["回答件数",rows.length+"件"],["事業所",offices.join("、")||"未入力"],["事業所種別",services.join("、")||"未入力"]];
+  const summary=document.querySelector("#csv-summary");summary.hidden=false;summary.replaceChildren(...cards.map(([h,v])=>{const c=document.createElement("div");c.className="summary-card";const strong=document.createElement("strong");strong.textContent=h;const p=document.createElement("p");p.textContent=v;c.append(strong,p);return c}));
+  const themes=document.createElement("div");themes.className="summary-card";themes.style.gridColumn="1/-1";const s=document.createElement("span");s.textContent="テーマ別集計";const p=document.createElement("p");p.textContent=Object.entries(themeCounts).map(([k,v])=>k+" "+v+"件").join(" / ");themes.append(s,p);summary.append(themes);
+}
+function renderIssueCards(issues){
+  const list=document.querySelector("#csv-issue-list");list.replaceChildren(...issues.map((x,index)=>{const card=document.createElement("article");card.className="issue-card";card.innerHTML='<div class="issue-card-head"><h4></h4><span class="priority-score"></span></div><p class="issue-meta"></p><div class="issue-grid"></div>';card.querySelector("h4").textContent=x.title;card.querySelector(".priority-score").textContent="優先度 "+x.priorityScore;card.querySelector(".issue-meta").textContent=[x.office,x.service,x.theme].filter(Boolean).join(" / ");const fields=[["今の困りごと",x.currentItems],["現状の一言",x.current],["ありたい姿",x.desired],["一番大きいギャップ",x.gap],["解決された状態",x.resolved],["解決方向性",x.direction]];const grid=card.querySelector(".issue-grid");fields.forEach(([h,v])=>{const p=document.createElement("p");const strong=document.createElement("strong");strong.textContent=h+"：";p.append(strong,document.createTextNode(v||"未入力"));grid.append(p)});const button=document.createElement("button");button.type="button";button.className="issue-plan-button";button.textContent="この課題の計画案を作る";button.addEventListener("click",()=>renderPlan(x));card.append(button);return card})); 
+}
+document.querySelectorAll(".planner-tab").forEach(button=>button.addEventListener("click",()=>selectPlannerTab(button.dataset.plannerTab)));
+PROBLEM_CATEGORIES.forEach(value=>{const option=document.createElement("option");option.value=value;option.textContent=value;document.querySelector('#manual-plan-form select[name="problemCategory"]').append(option)});
+document.querySelector("#problem-csv-input").addEventListener("change",event=>{const file=event.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const rows=parseCSV(String(reader.result));if(!rows.length)throw new Error();csvIssues=calculateCsvIssues(rows);document.querySelector("#csv-status").textContent=rows.length+"件を読み込み、"+csvIssues.length+"件の課題カードを作成しました。";renderCsvSummary(rows,csvIssues);renderIssueCards(csvIssues)}catch(error){document.querySelector("#csv-status").textContent="CSVを読み取れませんでした。見出しと文字コード（UTF-8）を確認してください。"}};reader.readAsText(file,"UTF-8")});
+document.querySelector("#manual-plan-form").addEventListener("submit",event=>{event.preventDefault();const values=Object.fromEntries(new FormData(event.currentTarget));renderPlan({title:values.title,current:values.current,desired:values.desired,problemCategories:[values.problemCategory],categories:mapByIncludes(values.direction,DIRECTION_CATEGORY_MAP),direction:values.direction,service:values.service,keywords:values.keywords,priorityReason:"手入力された課題をもとに、分類・方向性・キーワードが近い事例を優先"})});
+
+loadCases();
