@@ -15,7 +15,11 @@
     "tip": "最初から完璧なリストを作らず、使いながら修正する前提で始める。",
     "suitableFor": "訪問介護で、利用者ごとの注意点や手順が口頭伝達に偏っている事業所",
     "supportUse": "問題虫めがねで『申し送り』『情報共有』『伝え忘れ』が多く出た事業所に提示し、必要な情報を洗い出すワークにつなげる。",
-    "source": "https://www.mhlw.go.jp/content/12300000/000934621.pdf"
+    "source": "https://www.mhlw.go.jp/content/12300000/000934621.pdf",
+    "sourceType": "individual-pdf",
+    "sourceTitle": "令和3年度 推進スキル研修受講事業所によるモデル事業｜アースサポート新宿",
+    "sourcePdf": "https://www.mhlw.go.jp/content/12300000/000934621.pdf",
+    "sourceNote": "厚生労働省掲載の個別事例PDFをもとに短く要約"
   },
   {
     "id": 2,
@@ -33,7 +37,11 @@
     "tip": "問い合わせが多い内容から1枚のリストにまとめ、現場で見やすい大きさ・表現に直す。",
     "suitableFor": "生活援助や買い物支援の可否について、同じ質問や確認が繰り返されている訪問介護事業所",
     "supportUse": "問い合わせ内容を分類し、まず1テーマだけ『よく聞かれることリスト』にする短期改善テーマとして使う。",
-    "source": "https://www.mhlw.go.jp/content/12300000/000934622.pdf"
+    "source": "https://www.mhlw.go.jp/content/12300000/000934622.pdf",
+    "sourceType": "individual-pdf",
+    "sourceTitle": "令和3年度 推進スキル研修受講事業所によるモデル事業｜アースサポートふじみ野",
+    "sourcePdf": "https://www.mhlw.go.jp/content/12300000/000934622.pdf",
+    "sourceNote": "厚生労働省掲載の個別事例PDFをもとに短く要約"
   },
   {
     "id": 3,
@@ -51,7 +59,11 @@
     "tip": "業務時間調査は責めるためではなく、普段の工夫や空き時間を見つけるために使う。",
     "suitableFor": "通所系サービスで、職員によって動き方や交代の仕方が異なり、指示待ちや連携不足が起きている事業所",
     "supportUse": "問題虫めがねで『仕事の流れ』『職員間の連携』『誰が何をするか』が課題になった際、業務時間調査とマニュアル化の入口事例として使う。",
-    "source": "https://www.mhlw.go.jp/content/12300000/000934624.pdf"
+    "source": "https://www.mhlw.go.jp/content/12300000/000934624.pdf",
+    "sourceType": "individual-pdf",
+    "sourceTitle": "令和3年度 推進スキル研修受講事業所によるモデル事業｜いきいき稲富デイサービスセンター",
+    "sourcePdf": "https://www.mhlw.go.jp/content/12300000/000934624.pdf",
+    "sourceNote": "厚生労働省掲載の個別事例PDFをもとに短く要約"
   },
   {
     "id": 4,
@@ -69,7 +81,11 @@
     "tip": "ICT化は機器導入だけでなく、写真付き・手順付きのマニュアルを作って小さな成功体験を共有する。",
     "suitableFor": "居宅介護支援で、FAX・印刷・書類送付などの事務作業に二度手間が多い事業所",
     "supportUse": "書類業務の工程を『作成・印刷・確認・送信・保管』に分け、二度手間を見つけるワークの参考事例にする。",
-    "source": "https://www.mhlw.go.jp/content/12300000/000934642.pdf"
+    "source": "https://www.mhlw.go.jp/content/12300000/000934642.pdf",
+    "sourceType": "individual-pdf",
+    "sourceTitle": "令和3年度 推進スキル研修受講事業所によるモデル事業｜豊見城中央病院ケアプランセンター",
+    "sourcePdf": "https://www.mhlw.go.jp/content/12300000/000934642.pdf",
+    "sourceNote": "厚生労働省掲載の個別事例PDFをもとに短く要約"
   },
   {
     "id": 5,
@@ -88,6 +104,10 @@
     "tip": "LIFE対応は入力担当者だけの問題にせず、日々のケア記録が何に使われるかを全職員で共有する。",
     "suitableFor": "施設系サービスで、LIFEや記録入力が特定職員に集中し、現場全体の理解が不足している施設",
     "supportUse": "記録業務の属人化を見える化し、入力作業・記録の意味づけ・教育資料作成を分けて検討する際に使う。",
-    "source": "https://www.mhlw.go.jp/content/12300000/001016616.pdf"
+    "source": "https://www.mhlw.go.jp/content/12300000/001016616.pdf",
+    "sourceType": "individual-pdf",
+    "sourceTitle": "令和3年度 推進スキル研修受講事業所によるモデル事業｜介護老人保健施設さくらがわ",
+    "sourcePdf": "https://www.mhlw.go.jp/content/12300000/001016616.pdf",
+    "sourceNote": "厚生労働省掲載の個別事例PDFをもとに短く要約"
   }
 ]
