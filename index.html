@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="介護現場の困りごとから、生産性向上の事例を探せるライブラリーです。">
+  <title>介護の事例ライブラリー</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="トップへ"><span class="brand-mark" aria-hidden="true">事例</span><span>介護の事例ライブラリー</span></a>
+    <span class="header-note">現場の困りごとから探す</span>
+  </header>
+  <main id="top">
+    <section class="hero" aria-labelledby="page-title">
+      <div class="hero-inner">
+        <p class="eyebrow">KAIGO CASE LIBRARY</p>
+        <h1 id="page-title">その困りごと、<br><span>先行事例</span>から解決のヒントを。</h1>
+        <p class="hero-copy">介護現場で起きている課題を入力すると、似た悩みに取り組んだ事業所の事例を探せます。</p>
+        <form class="search-box" id="search-form" role="search">
+          <label class="visually-hidden" for="search-input">事例を検索</label>
+          <span aria-hidden="true" class="search-icon">⌕</span>
+          <input id="search-input" type="search" placeholder="例：記録に時間がかかる、夜勤の負担" autocomplete="off">
+          <button type="submit">検索</button>
+        </form>
+        <p class="search-hint">困りごと・取組・成果・サービス種別をまとめて検索できます</p>
+      </div>
+    </section>
+    <section class="library" aria-labelledby="library-title">
+      <div class="library-heading">
+        <div><p class="section-kicker">FILTER &amp; FIND</p><h2 id="library-title">事例を絞り込む</h2></div>
+        <button class="reset-button" id="reset-button" type="button">条件をリセット</button>
+      </div>
+      <div class="filter-panel" aria-label="事例の絞り込み条件">
+        <div class="filter-group"><h3>困りごと</h3><div class="tag-list" id="problem-tags"></div></div>
+        <div class="filter-group"><h3>サービス種別</h3><div class="tag-list" id="service-tags"></div></div>
+        <div class="filter-group"><h3>取組分類</h3><div class="tag-list" id="category-tags"></div></div>
+      </div>
+      <div class="result-bar" aria-live="polite">
+        <p><strong id="result-count">0</strong><span>件の事例</span></p>
+        <label>並び順 <select id="sort-select"><option value="recommended">おすすめ順</option><option value="title">タイトル順</option></select></label>
+      </div>
+      <div class="case-grid" id="case-grid"></div>
+      <div class="empty-state" id="empty-state" hidden>
+        <h3>条件に合う事例がありません</h3><p>検索語を短くするか、タグを減らしてみてください。</p>
+        <button type="button" class="primary-button" id="empty-reset">すべての事例を見る</button>
+      </div>
+    </section>
+  </main>
+  <footer><p>介護の事例ライブラリー</p><p>掲載内容はデモ用のダミーデータです。実際の導入時は、各出典の原文をご確認ください。</p></footer>
+  <dialog class="case-dialog" id="case-dialog" aria-labelledby="dialog-title">
+    <div class="dialog-frame"><button class="dialog-close" id="dialog-close" type="button" aria-label="詳細を閉じる">×</button><div id="dialog-content"></div></div>
+  </dialog>
+  <template id="case-template">
+    <article class="case-card">
+      <div class="card-topline"><span class="service-label"></span><span class="case-number"></span></div>
+      <h3 class="case-title"></h3>
+      <div class="card-section"><span class="card-label">困りごと</span><p class="case-problem"></p></div>
+      <div class="category-list"></div>
+      <div class="card-section outcome-section"><span class="card-label">成果</span><p class="case-outcome"></p></div>
+      <div class="card-section"><span class="card-label">真似できるポイント</span><p class="case-tip"></p></div>
+      <button class="detail-button" type="button">事例を詳しく見る <span aria-hidden="true">→</span></button>
+    </article>
+  </template>
+  <script src="app.js"></script>
+</body>
+</html>
