@@ -41,3 +41,5 @@ footer{padding:35px 24px;color:#d7e4e2;background:var(--ink);text-align:center;f
 @media(max-width:720px){.causal-draft{padding:20px 14px}.causal-heading,.analysis-card-head{display:block}.causal-copy-button,.text-copy-button{margin-top:9px}.causal-layers,.causal-analysis{grid-template-columns:1fr}.causal-layer{padding:11px}}
 
 .causal-subtitle{margin:5px 0 0;color:var(--brand-dark);font-size:14px;font-weight:800}
+
+.node-point-label{display:block;margin-top:7px;color:var(--muted);font-size:9px;font-weight:800}.node-reason{margin:7px 0 0;color:var(--ink);font-size:10px;line-height:1.65}.node-reason strong{display:block;color:var(--brand-dark)}.node-answers{margin-top:7px;padding:8px;background:#f7faf9;border-radius:7px;font-size:10px}.node-answers>strong{color:var(--brand-dark)}.node-answers ul{margin:5px 0 0;padding-left:16px}.node-answers li{margin:3px 0;line-height:1.55}
