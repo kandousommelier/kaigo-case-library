@@ -112,17 +112,18 @@ function renderPlan(issue){
   const related=document.createElement("section");related.className="plan-field related-cases";const rh=document.createElement("h4");rh.textContent="参考事例";const list=document.createElement("div");list.className="related-case-list";plan.related.forEach(item=>{const card=document.createElement("div");card.className="related-case";const strong=document.createElement("strong");strong.textContent=item.title;const meta=document.createElement("span");meta.textContent=item.service+" / "+item.problemCategory;card.append(strong,meta);list.append(card)});related.append(rh,list);fields.append(related);output.append(head,fields);output.scrollIntoView({behavior:"smooth",block:"start"});
 }
 async function copyPlan(plan,button){const text=planText(plan);try{await navigator.clipboard.writeText(text)}catch(error){const area=document.createElement("textarea");area.value=text;document.body.append(area);area.select();document.execCommand("copy");area.remove()}button.textContent="コピーしました";setTimeout(()=>button.textContent="計画案をコピー",1800)}
-function selectPlannerTab(name){
-  
 const CAUSAL_LAYER_DEFINITIONS=[
   {key:"background",label:"背景要因",description:"組織・体制・環境・人材"},
   {key:"direct",label:"直接原因",description:"困りごとを直接生む要因"},
   {key:"field",label:"現場で起きている困りごと",description:"職員が実際に困っていること"},
   {key:"risk",label:"影響・リスク",description:"結果として生じる悪影響"}
 ];
+const CAUSAL_CONFIRMATION_POINTS=["この課題は実際に現場で頻繁に起きていますか","原因の置き方は現場感と合っていますか","今年度の短期改善として扱うべきですか","中長期で扱うべき構造課題ですか","既存の会議体や教育体制で対応できますか","ICT導入より先に運用ルールを整える必要がありますか"];
+const CAUSAL_INTERVIEW_QUESTIONS=["この課題が起きやすい時間帯や場面はどこですか","どの職種・役割に負担が偏っていますか","これまでに同じ課題へ取り組んだことはありますか","うまくいかなかった理由は何ですか","短期的に変えられることと、時間をかけて変えるべきことは何ですか"];
 const STRUCTURE_KEYWORDS=/人材|教育|体制|ルール|会議体|会議|ICT環境|ICT|管理|リーダー|定着|役割分担|標準化|情報共有|記録/;
 const RISK_KEYWORDS=/負担|残業|確認漏れ|漏れ|ミス|サービス品質|品質|安全|離職|不安|ばらつき|偏り|時間がかか|遅れ|事故/;
 let latestCausalStructure=null;
+let latestCausalCopyText={layers:"",longTerm:"",questions:""};
 function conciseNodeName(value,fallback){
   const clean=String(value||"").replace(/\s+/g," ").trim();
   return clean?(clean.length>52?clean.slice(0,51)+"…":clean):fallback;
@@ -162,16 +163,18 @@ function buildCausalStructure(issues){
   issues.forEach(issue=>{
     const structuralText=[issue.gap,issue.direction,issue.current,issue.currentItems].join(" ");
     const backgroundName=STRUCTURE_KEYWORDS.test(structuralText)?structuralNodeName(structuralText):"";
-    if(backgroundName)addNode("background",backgroundName,issue,issue.gap||issue.direction);
+    if(backgroundName)addNode("background",backgroundName,issue,issue.gap||issue.direction);else addNode("background","改善を支える体制・ルールの確認が必要",issue,issue.direction||issue.gap||issue.theme);
     if(issue.direction.includes("制度設計"))addNode("background","組織・制度として改善を支える体制が必要",issue,issue.direction);
     if(issue.gap)addNode("direct",issue.gap,issue,issue.gap);
     if(issue.direction){
       const directionCause=issue.direction.includes("制度設計")?"制度・体制の整備が必要":issue.direction+"の進め方が十分に整っていない";
       addNode("direct",directionCause,issue,issue.direction);
     }
+    if(!issue.gap&&!issue.direction)addNode("direct","現状と目指す状態の差を具体化する必要",issue,issue.current||issue.theme);
     const fieldItems=splitIssueItems(issue.currentItems);
     fieldItems.forEach(item=>addNode("field",item,issue,issue.currentItems));
     if(issue.current&&!fieldItems.some(item=>normalized(issue.current).includes(normalized(item))))addNode("field",issue.current,issue,issue.current);
+    if(!fieldItems.length&&!issue.current)addNode("field",issue.title||issue.theme+"の困りごと",issue,issue.gap||issue.theme);
     const riskSources=[issue.current,issue.currentItems,issue.gap].filter(Boolean);
     const matched=riskSources.filter(value=>RISK_KEYWORDS.test(value));
     if(matched.length)matched.forEach(value=>addNode("risk",value,issue,value));
@@ -184,7 +187,7 @@ function buildCausalStructure(issues){
   const shortTerm=layers.field.filter(node=>node.issues.some(issue=>/運用ルール|業務プロセス変更|ICT|道具/.test(issue.direction))&&node.issues.some(issue=>findRelatedCases(issue,3).length>=3)).slice(0,5);
   const structuralTerms=/教育|人材|役割|情報共有|記録|会議|ICT|改善|管理|リーダー|体制|ルール|定着/;
   const longTerm=[...layers.background,...layers.direct.filter(node=>structuralTerms.test(node.name))].filter((node,index,array)=>array.findIndex(other=>normalized(other.name)===normalized(node.name))===index).sort((a,b)=>b.issues.length-a.issues.length).slice(0,8);
-  return{layers,shortTerm,longTerm};
+  return{layers,shortTerm,longTerm,confirmationPoints:[...CAUSAL_CONFIRMATION_POINTS],interviewQuestions:[...CAUSAL_INTERVIEW_QUESTIONS]};
 }
 function uniqueNodeValues(node,key){
   return[...new Set(node.issues.map(issue=>issue[key]).filter(Boolean))];
@@ -221,13 +224,20 @@ function openCausalEvidence(node,layerLabel){
 function causalLayerText(structure){
   return CAUSAL_LAYER_DEFINITIONS.map(layer=>"【"+layer.label+"】\n"+structure.layers[layer.key].map(node=>"・"+node.name+"（関連カード "+node.issues.length+"件）\n  根拠："+(node.evidence.slice(0,2).join(" / ")||"未入力")).join("\n")).join("\n\n");
 }
-function copyTextContent(text,button,defaultLabel){
-  const done=()=>{button.textContent="コピーしました";setTimeout(()=>button.textContent=defaultLabel,1800)};
-  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(text).then(done).catch(()=>fallbackCopyText(text,done));
-  else fallbackCopyText(text,done);
+function setCopyButtonMessage(button,message,defaultLabel){
+  button.textContent=message;setTimeout(()=>button.textContent=defaultLabel,2200);
 }
-function fallbackCopyText(text,done){
-  const area=document.createElement("textarea");area.value=text;document.body.append(area);area.select();document.execCommand("copy");area.remove();done();
+function copyTextContent(text,button,defaultLabel){
+  const value=String(text||"").trim();
+  if(!value){setCopyButtonMessage(button,"コピーする内容がありません",defaultLabel);return}
+  const done=()=>setCopyButtonMessage(button,"コピーしました",defaultLabel);
+  const failed=()=>setCopyButtonMessage(button,"コピーできませんでした",defaultLabel);
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(value).then(done).catch(()=>fallbackCopyText(value,done,failed));
+  else fallbackCopyText(value,done,failed);
+}
+function fallbackCopyText(text,done,failed){
+  const area=document.createElement("textarea");area.value=text;area.setAttribute("readonly","");area.style.position="fixed";area.style.opacity="0";document.body.append(area);area.select();
+  let copied=false;try{copied=document.execCommand("copy")}catch(error){copied=false}area.remove();copied?done():failed();
 }
 function renderCausalStructure(issues){
   const section=document.querySelector("#causal-draft");section.removeAttribute("hidden");section.hidden=false;section.style.removeProperty("display");
@@ -238,20 +248,24 @@ function renderCausalStructure(issues){
     const head=document.createElement("div");head.className="causal-layer-head";const step=document.createElement("span");step.textContent="LAYER "+(index+1);const title=document.createElement("h4");title.textContent=definition.label;const desc=document.createElement("span");desc.textContent=definition.description;head.append(step,title,desc);
     const list=document.createElement("div");list.className="causal-node-list";
     latestCausalStructure.layers[definition.key].forEach(node=>list.append(renderCausalNode(node,definition.label)));
-    if(!list.children.length){const empty=document.createElement("p");empty.className="node-meta";empty.textContent="該当する内容は未抽出です。";list.append(empty)}
+    if(!list.children.length){const empty=document.createElement("p");empty.className="node-meta";empty.textContent="該当する内容はまだ抽出されていません。管理者・活動推進リーダーへの確認時に補足してください。";list.append(empty)}
     column.append(head,list);layers.append(column);
   });
   appendList(document.querySelector("#short-term-issues"),latestCausalStructure.shortTerm.map(node=>node.name+"（"+node.issues.length+"件）: 運用変更やICT等で3か月以内の試行を検討"),"短期改善候補は、管理者との確認後に整理してください。");
   appendList(document.querySelector("#long-term-issues"),latestCausalStructure.longTerm.map(node=>node.name+"（"+node.issues.length+"件）"),"中長期課題候補は、管理者との確認後に整理してください。");
-  appendList(document.querySelector("#confirmation-points"),["この課題は実際に現場で頻繁に起きていますか","原因の置き方は現場感と合っていますか","今年度の短期改善として扱うべきですか","中長期で扱うべき構造課題ですか","既存の会議体や教育体制で対応できますか","ICT導入より先に運用ルールを整える必要がありますか"],"確認論点はありません。");
-  appendList(document.querySelector("#interview-questions"),["この課題が起きやすい時間帯や場面はどこですか","どの職種・役割に負担が偏っていますか","これまでに同じ課題へ取り組んだことはありますか","うまくいかなかった理由は何ですか","短期的に変えられることと、時間をかけて変えるべきことは何ですか"],"確認質問はありません。");
+  appendList(document.querySelector("#confirmation-points"),latestCausalStructure.confirmationPoints,"確認論点はありません。");
+  appendList(document.querySelector("#interview-questions"),latestCausalStructure.interviewQuestions,"確認質問はありません。");
+  latestCausalCopyText={layers:causalLayerText(latestCausalStructure),longTerm:latestCausalStructure.longTerm.length?"【中長期課題候補】\n"+latestCausalStructure.longTerm.map(node=>"・"+node.name+"（関連カード "+node.issues.length+"件）").join("\n"):"",questions:latestCausalStructure.interviewQuestions.length?"【管理者・活動推進リーダーへの確認質問】\n"+latestCausalStructure.interviewQuestions.map(item=>"・"+item).join("\n"):""};
 }
 document.querySelector("#evidence-dialog-close").addEventListener("click",()=>document.querySelector("#causal-evidence-dialog").close());
 document.querySelector("#causal-evidence-dialog").addEventListener("click",event=>{if(event.target===event.currentTarget)event.currentTarget.close()});
-document.querySelector("#copy-causal-layers").addEventListener("click",event=>{if(latestCausalStructure)copyTextContent(causalLayerText(latestCausalStructure),event.currentTarget,"4層整理をコピー")});
-document.querySelector("#copy-long-term").addEventListener("click",event=>{if(latestCausalStructure)copyTextContent("【中長期課題候補】\n"+latestCausalStructure.longTerm.map(node=>"・"+node.name+"（関連カード "+node.issues.length+"件）").join("\n"),event.currentTarget,"中長期課題候補をコピー")});
-document.querySelector("#copy-interview-questions").addEventListener("click",event=>copyTextContent("【管理者・活動推進リーダーへの確認質問】\n"+[...document.querySelectorAll("#interview-questions li")].map(item=>"・"+item.textContent).join("\n"),event.currentTarget,"確認質問をコピー"));
+document.querySelector("#copy-causal-layers").addEventListener("click",event=>copyTextContent(latestCausalCopyText.layers,event.currentTarget,"4層整理をコピー"));
+document.querySelector("#copy-long-term").addEventListener("click",event=>copyTextContent(latestCausalCopyText.longTerm,event.currentTarget,"中長期課題候補をコピー"));
+document.querySelector("#copy-interview-questions").addEventListener("click",event=>copyTextContent(latestCausalCopyText.questions,event.currentTarget,"確認質問をコピー"));
 
+
+function selectPlannerTab(name){
+  
 document.querySelectorAll(".planner-tab").forEach(b=>{const active=b.dataset.plannerTab===name;b.classList.toggle("is-active",active);b.setAttribute("aria-selected",String(active))});
   ["csv","manual","case"].forEach(key=>document.querySelector("#planner-"+key+"-panel").hidden=key!==name);
 }
