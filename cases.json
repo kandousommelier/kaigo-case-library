@@ -1,0 +1,142 @@
+[
+  {
+    "id": 1,
+    "title": "音声入力で申し送り記録を短時間に",
+    "service": "特別養護老人ホーム",
+    "problem": "記録業務",
+    "categories": [
+      "ICT活用",
+      "記録の効率化"
+    ],
+    "outcome": "記録時間を1日あたり約40分短縮",
+    "tip": "まず1フロア・1帳票に絞って試す",
+    "summary": "手書きメモを後から転記する運用を見直し、タブレットの音声入力でその場で記録。職員間で入力ルールを揃えました。",
+    "source": "https://www.mhlw.go.jp/stf/kaigo-seisansei.html"
+  },
+  {
+    "id": 2,
+    "title": "インカムで職員を探す時間を削減",
+    "service": "介護老人保健施設",
+    "problem": "職員間の連携",
+    "categories": [
+      "ICT活用",
+      "情報共有"
+    ],
+    "outcome": "応援依頼への対応が平均5分早くなった",
+    "tip": "短い定型語と利用場面を先に決める",
+    "summary": "フロアをまたぐ連絡にインカムを導入。呼び出しの優先度や言い方を標準化し、不要な館内移動を減らしました。",
+    "source": "https://www.mhlw.go.jp/stf/kaigo-seisansei.html"
+  },
+  {
+    "id": 3,
+    "title": "センサー活用で夜間巡視を見直し",
+    "service": "認知症対応型共同生活介護",
+    "problem": "夜勤の負担",
+    "categories": [
+      "介護ロボット",
+      "業務の見直し"
+    ],
+    "outcome": "定時巡視を減らし、個別ケアの時間を確保",
+    "tip": "利用者ごとに通知条件を調整する",
+    "summary": "見守りセンサーのデータをもとに巡視方法を見直し、必要なタイミングで訪室する運用へ変更しました。",
+    "source": "https://www.mhlw.go.jp/stf/kaigo-seisansei.html"
+  },
+  {
+    "id": 4,
+    "title": "物品配置の標準化で探し物をなくす",
+    "service": "通所介護",
+    "problem": "ムダな移動",
+    "categories": [
+      "5S活動",
+      "業務の見直し"
+    ],
+    "outcome": "物品を探す時間を月約12時間削減",
+    "tip": "写真付きの定位置表示から始める",
+    "summary": "収納場所を職員全員で棚卸しし、使用頻度に合わせて配置。写真ラベルで戻す場所を明確にしました。",
+    "source": "https://www.mhlw.go.jp/stf/kaigo-seisansei.html"
+  },
+  {
+    "id": 5,
+    "title": "朝礼の見える化で申し送りを簡潔に",
+    "service": "訪問介護",
+    "problem": "申し送りの重複",
+    "categories": [
+      "情報共有",
+      "業務の見直し"
+    ],
+    "outcome": "朝礼時間を20分から10分へ短縮",
+    "tip": "全員に必要な情報だけを掲示する",
+    "summary": "口頭で繰り返していた連絡を共有ボードに集約し、朝礼では変更点と注意事項だけを確認する形にしました。",
+    "source": "https://www.mhlw.go.jp/stf/kaigo-seisansei.html"
+  },
+  {
+    "id": 6,
+    "title": "勤務希望の収集をデジタル化",
+    "service": "小規模多機能型居宅介護",
+    "problem": "シフト作成",
+    "categories": [
+      "ICT活用",
+      "間接業務の効率化"
+    ],
+    "outcome": "シフト案作成までの期間を3日短縮",
+    "tip": "入力期限と例外時の連絡方法を決める",
+    "summary": "紙で集めていた勤務希望をフォーム化し、自動集計。転記ミスと確認の往復を減らしました。",
+    "source": "https://www.mhlw.go.jp/stf/kaigo-seisansei.html"
+  },
+  {
+    "id": 7,
+    "title": "入浴介助の動線をチームで再設計",
+    "service": "特別養護老人ホーム",
+    "problem": "身体的な負担",
+    "categories": [
+      "業務の見直し",
+      "安全な介護"
+    ],
+    "outcome": "介助者の歩数を約25%削減",
+    "tip": "実際の動線を図に書いて話し合う",
+    "summary": "準備から片付けまでの動きを観察し、物品と職員の配置、役割分担を変更。腰への負担にも配慮しました。",
+    "source": "https://www.mhlw.go.jp/stf/kaigo-seisansei.html"
+  },
+  {
+    "id": 8,
+    "title": "動画マニュアルで新人教育を均一に",
+    "service": "有料老人ホーム",
+    "problem": "新人教育",
+    "categories": [
+      "人材育成",
+      "標準化"
+    ],
+    "outcome": "独り立ちまでの期間を平均2週間短縮",
+    "tip": "1本3分以内で一つの作業に絞る",
+    "summary": "基本動作を短い動画にし、いつでも復習できる環境を整備。指導者による説明のばらつきを抑えました。",
+    "source": "https://www.mhlw.go.jp/stf/kaigo-seisansei.html"
+  },
+  {
+    "id": 9,
+    "title": "送迎ルートの共有で属人化を解消",
+    "service": "通所リハビリテーション",
+    "problem": "送迎の調整",
+    "categories": [
+      "標準化",
+      "ICT活用"
+    ],
+    "outcome": "配車調整を週あたり約2時間短縮",
+    "tip": "注意点を地図上で更新できる形にする",
+    "summary": "担当者の経験に頼っていた送迎情報をデジタル地図に集約し、代行時にも迷わないようにしました。",
+    "source": "https://www.mhlw.go.jp/stf/kaigo-seisansei.html"
+  },
+  {
+    "id": 10,
+    "title": "会議の目的整理で現場時間を確保",
+    "service": "居宅介護支援",
+    "problem": "会議が長い",
+    "categories": [
+      "会議の効率化",
+      "業務の見直し"
+    ],
+    "outcome": "定例会議の総時間を月3時間削減",
+    "tip": "共有・相談・決定を議題ごとに明記する",
+    "summary": "会議前に議題とゴールを共有し、報告だけの項目は資料確認へ移行。決定事項と担当者をその場で記録しました。",
+    "source": "https://www.mhlw.go.jp/stf/kaigo-seisansei.html"
+  }
+]
