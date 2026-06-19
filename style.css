@@ -17,5 +17,6 @@ footer{padding:35px 24px;color:#d7e4e2;background:var(--ink);text-align:center;f
 .filter-tag{transition:background .15s,border-color .15s,transform .15s}.filter-tag:hover{transform:translateY(-1px);background:#edf7f5}.filter-tag[aria-pressed=true]{box-shadow:0 0 0 3px rgba(8,118,109,.13)}
 .problem-badge{margin:0 0 14px;padding:12px 14px;background:#f7f5ee;border-left:4px solid var(--accent);border-radius:8px}.problem-badge span{display:block;color:#8d5d22;font-size:10px;font-weight:800;letter-spacing:.06em}.problem-badge p{margin:3px 0 0;font-size:13px;font-weight:800;line-height:1.5}
 .suitable-section{margin:2px 0 16px;padding:13px 14px;background:#f6f9f8;border:1px solid var(--line);border-radius:10px}.suitable-section .card-label{position:static;display:block;margin-bottom:3px;color:var(--brand)}.suitable-section p{margin:0;font-size:13px}
+.card-source{margin:0 0 14px;color:var(--muted);font-size:11px;line-height:1.5}
 .dialog-block{padding-bottom:18px;border-bottom:1px solid var(--line)}.dialog-block:last-of-type{border-bottom:0}.dialog-block h3{font-size:14px}
 @media(max-width:720px){#problem-tags{grid-template-columns:1fr}.problem-badge{padding:11px 12px}.suitable-section{padding:12px}}
