@@ -113,13 +113,12 @@ function renderPlan(issue){
 }
 async function copyPlan(plan,button){const text=planText(plan);try{await navigator.clipboard.writeText(text)}catch(error){const area=document.createElement("textarea");area.value=text;document.body.append(area);area.select();document.execCommand("copy");area.remove()}button.textContent="コピーしました";setTimeout(()=>button.textContent="計画案をコピー",1800)}
 const CAUSAL_LAYER_DEFINITIONS=[
-  {key:"background",label:"背景要因",description:"組織・体制・環境・人材"},
-  {key:"direct",label:"直接原因",description:"困りごとを直接生む要因"},
-  {key:"field",label:"現場で起きている困りごと",description:"職員が実際に困っていること"},
-  {key:"risk",label:"影響・リスク",description:"結果として生じる悪影響"}
+  {key:"background",label:"背景要因",description:"組織・体制・教育・会議体・ICT環境など、課題の背景にある構造的な要因です。"},
+  {key:"direct",label:"直接原因",description:"現場の困りごとを直接生んでいる業務手順、ルール、役割分担、情報共有方法などです。"},
+  {key:"field",label:"現場で起きている困りごと",description:"問題虫めがねで職員が実際に困っていると回答した内容です。"},
+  {key:"risk",label:"影響・リスク",description:"その結果として起きている、または起きる可能性がある職員負担、残業、ミス、サービス品質低下、安全面のリスクです。"}
 ];
-const CAUSAL_CONFIRMATION_POINTS=["この課題は実際に現場で頻繁に起きていますか","原因の置き方は現場感と合っていますか","今年度の短期改善として扱うべきですか","中長期で扱うべき構造課題ですか","既存の会議体や教育体制で対応できますか","ICT導入より先に運用ルールを整える必要がありますか"];
-const CAUSAL_INTERVIEW_QUESTIONS=["この課題が起きやすい時間帯や場面はどこですか","どの職種・役割に負担が偏っていますか","これまでに同じ課題へ取り組んだことはありますか","うまくいかなかった理由は何ですか","短期的に変えられることと、時間をかけて変えるべきことは何ですか"];
+const CAUSAL_CONFIRMATION_COMPLETE="現時点では、問題虫めがねの回答から主要な課題構造を整理できています。管理者・活動推進リーダーには、因果関係図の妥当性確認を行ってください。";
 const STRUCTURE_KEYWORDS=/人材|教育|体制|ルール|会議体|会議|ICT環境|ICT|管理|リーダー|定着|役割分担|標準化|情報共有|記録/;
 const RISK_KEYWORDS=/負担|残業|確認漏れ|漏れ|ミス|サービス品質|品質|安全|離職|不安|ばらつき|偏り|時間がかか|遅れ|事故/;
 let latestCausalStructure=null;
@@ -149,6 +148,42 @@ function defaultRiskName(issue){
   if(categories.includes("物を探す"))return"準備・移動時間と職員負担が増える";
   if(categories.includes("目標"))return"改善活動が定着しにくい";
   return"職員負担とサービス品質への影響が続く";
+}
+function nodeAnswerLines(node){
+  const definitions=[["Q2","currentItems"],["Q3","current"],["Q5","gap"],["Q7","direction"]];
+  return definitions.flatMap(([label,key])=>uniqueNodeValues(node,key).slice(0,2).map(value=>label+"："+value));
+}
+function matchedNodeTerms(node,pattern){
+  const text=node.issues.map(issue=>[issue.currentItems,issue.current,issue.gap,issue.direction].join(" ")).join(" ");
+  return[...new Set((text.match(pattern)||[]))];
+}
+function nodeReasonText(node){
+  if(node.layer==="background"){
+    const terms=matchedNodeTerms(node,/人材|教育|体制|ルール|会議体|ICT環境|ICT|管理|リーダー|定着|役割分担|標準化|情報共有|記録/g);
+    return"「"+node.name+"」に関連して"+(terms.length?"「"+terms.slice(0,4).join("」「")+"」":"体制・ルール")+"を示す回答があり、個別業務の背後にある構造的な要因として整理しました。";
+  }
+  if(node.layer==="direct"){
+    const gaps=uniqueNodeValues(node,"gap"),directions=uniqueNodeValues(node,"direction");
+    return"Q5のギャップ"+(gaps.length?"「"+gaps.slice(0,2).join("」「")+"」":"と現状の差")+"とQ7の改善方向"+(directions.length?"「"+directions.slice(0,2).join("」「")+"」":"")+"から、現場の困りごとを直接生む手順・ルール・役割上の要因として整理しました。";
+  }
+  if(node.layer==="field"){
+    return"Q2・Q3に「"+node.name+"」と同じ、または近い内容の回答が"+node.issues.length+"件あり、職員が実際に経験している困りごとの要点として整理しました。";
+  }
+  const terms=matchedNodeTerms(node,/負担|残業|確認漏れ|漏れ|ミス|サービス品質|品質|安全|離職|不安|ばらつき|偏り|時間がかか|遅れ|事故/g);
+  return(terms.length?"「"+terms.slice(0,4).join("」「")+"」に関する回答があり":"回答から職員負担やサービス品質への影響が考えられ")+"、困りごとの結果として起きている、または起きる可能性がある影響・リスクとして整理しました。";
+}
+function buildAdditionalConfirmation(issues){
+  const text=issues.map(issue=>[issue.currentItems,issue.current,issue.gap,issue.direction].join(" ")).join(" ");
+  const checks=[
+    {pattern:/朝|昼|夜|時間帯|勤務帯|送迎時|入浴時|食事時|休憩時/,point:"課題が特に起きやすい時間帯が未確認です。",question:"この課題は、どの時間帯に特に起きやすいですか"},
+    {pattern:/場面|記録|申し送り|会議|人員配置|送迎|入浴|食事|排泄|訪問/,point:"課題が起きる具体的な業務場面が未確認です。",question:"この課題は、記録・申し送り・会議・人員配置のどれと関係が強いですか"},
+    {pattern:/職種|介護職|看護職|ケアマネ|管理者|リーダー|新人|非常勤|夜勤者/,point:"負担が集中している職種・役割が未確認です。",question:"どの職種・役割に負担が偏っていますか"},
+    {pattern:/試した|取り組んだ|導入した|改善した|見直した/,point:"既に試した改善策と、継続・定着しなかった理由が未確認です。",question:"これまでに同じ課題へ取り組んだことはありますか。うまくいかなかった場合、その理由は何ですか"},
+    {pattern:/予算|人員|シフト|契約|設備|端末|制度上|制約/,point:"管理者側で把握している予算・人員・制度等の制約条件が未確認です。",question:"管理者側で把握している予算・人員・制度上の制約はありますか"},
+    {pattern:/短期|中長期|今年度|来年度|3か月/,point:"短期改善と中長期改善のどちらで扱うかの判断が未確認です。",question:"この課題は短期改善で扱うべきですか、中長期改善で扱うべきですか"}
+  ];
+  const missing=checks.filter(check=>!check.pattern.test(text));
+  return{points:missing.map(check=>check.point),questions:missing.map(check=>check.question),summary:missing.length?"":CAUSAL_CONFIRMATION_COMPLETE};
 }
 function buildCausalStructure(issues){
   const buckets=Object.fromEntries(CAUSAL_LAYER_DEFINITIONS.map(layer=>[layer.key,new Map()]));
@@ -187,7 +222,7 @@ function buildCausalStructure(issues){
   const shortTerm=layers.field.filter(node=>node.issues.some(issue=>/運用ルール|業務プロセス変更|ICT|道具/.test(issue.direction))&&node.issues.some(issue=>findRelatedCases(issue,3).length>=3)).slice(0,5);
   const structuralTerms=/教育|人材|役割|情報共有|記録|会議|ICT|改善|管理|リーダー|体制|ルール|定着/;
   const longTerm=[...layers.background,...layers.direct.filter(node=>structuralTerms.test(node.name))].filter((node,index,array)=>array.findIndex(other=>normalized(other.name)===normalized(node.name))===index).sort((a,b)=>b.issues.length-a.issues.length).slice(0,8);
-  return{layers,shortTerm,longTerm,confirmationPoints:[...CAUSAL_CONFIRMATION_POINTS],interviewQuestions:[...CAUSAL_INTERVIEW_QUESTIONS]};
+  const additionalConfirmation=buildAdditionalConfirmation(issues);return{layers,shortTerm,longTerm,confirmationPoints:additionalConfirmation.points,interviewQuestions:additionalConfirmation.questions,confirmationSummary:additionalConfirmation.summary};
 }
 function uniqueNodeValues(node,key){
   return[...new Set(node.issues.map(issue=>issue[key]).filter(Boolean))];
@@ -198,20 +233,23 @@ function appendList(target,items,emptyText){
 }
 function renderCausalNode(node,layerLabel){
   const card=document.createElement("article");card.className="causal-node";
-  const kind=document.createElement("span");kind.className="node-kind";kind.textContent=layerLabel;
+  const kind=document.createElement("span");kind.className="node-kind";kind.textContent="分類："+layerLabel;
+  const pointLabel=document.createElement("span");pointLabel.className="node-point-label";pointLabel.textContent="要点";
   const title=document.createElement("h5");title.textContent=node.name;
   const roles=uniqueNodeValues(node,"role"),themes=uniqueNodeValues(node,"theme");
-  const meta=document.createElement("p");meta.className="node-meta";meta.textContent="関連カード "+node.issues.length+"件 / 回答者："+(roles.join("、")||"未入力")+" / テーマ："+(themes.join("、")||"未入力");
-  const evidence=document.createElement("p");evidence.className="node-evidence";const evidenceLabel=document.createElement("strong");evidenceLabel.textContent="主な根拠文：";evidence.append(evidenceLabel,document.createTextNode(node.evidence.slice(0,2).join(" / ")||"未入力"));
-  const related=document.createElement("p");related.className="node-related";const relatedLabel=document.createElement("strong");relatedLabel.textContent="関連内容：";const qSummary=["Q2 "+uniqueNodeValues(node,"currentItems").slice(0,2).join(" / "),"Q3 "+uniqueNodeValues(node,"current").slice(0,2).join(" / "),"Q5 "+uniqueNodeValues(node,"gap").slice(0,2).join(" / "),"Q7 "+uniqueNodeValues(node,"direction").slice(0,2).join(" / ")].filter(value=>!value.endsWith(" ")).join("｜");related.append(relatedLabel,document.createTextNode(qSummary||"未入力"));
-  const button=document.createElement("button");button.type="button";button.className="evidence-button";button.textContent="根拠を見る";button.addEventListener("click",()=>openCausalEvidence(node,layerLabel));
-  card.append(kind,title,meta,evidence,related,button);return card;
+  const count=document.createElement("p");count.className="node-meta";count.textContent="該当カード件数："+node.issues.length+"件";
+  const reason=document.createElement("p");reason.className="node-reason";const reasonLabel=document.createElement("strong");reasonLabel.textContent="この要点に整理した理由：";reason.append(reasonLabel,document.createTextNode(nodeReasonText(node)));
+  const answers=document.createElement("div");answers.className="node-answers";const answersLabel=document.createElement("strong");answersLabel.textContent="該当する回答";const answerList=document.createElement("ul");(nodeAnswerLines(node).length?nodeAnswerLines(node):["該当回答は未入力です。"]).forEach(value=>{const li=document.createElement("li");li.textContent=value;answerList.append(li)});answers.append(answersLabel,answerList);
+  const respondents=document.createElement("p");respondents.className="node-meta";respondents.textContent="回答者の立場："+(roles.join("、")||"未入力");
+  const themesText=document.createElement("p");themesText.className="node-meta";themesText.textContent="関連テーマ："+(themes.join("、")||"未入力");
+  const button=document.createElement("button");button.type="button";button.className="evidence-button";button.textContent="該当回答を見る";button.addEventListener("click",()=>openCausalEvidence(node,layerLabel));
+  card.append(kind,pointLabel,title,count,reason,answers,respondents,themesText,button);return card;
 }
 function openCausalEvidence(node,layerLabel){
   const content=document.querySelector("#causal-evidence-content");content.replaceChildren();
   const title=document.createElement("h2");title.id="evidence-dialog-title";title.textContent=node.name;
-  const intro=document.createElement("p");intro.className="dialog-service";intro.textContent=layerLabel+" / 関連カード "+node.issues.length+"件";
-  content.append(title,intro);
+  const intro=document.createElement("p");intro.className="dialog-service";intro.textContent=layerLabel+" / 該当カード "+node.issues.length+"件";const reason=document.createElement("p");reason.className="node-reason";reason.textContent="この要点に整理した理由："+nodeReasonText(node);
+  content.append(title,intro,reason);
   node.issues.forEach(issue=>{
     const record=document.createElement("section");record.className="evidence-record";
     const heading=document.createElement("h3");heading.textContent=issue.office||"事業所名未入力";
@@ -222,7 +260,10 @@ function openCausalEvidence(node,layerLabel){
   document.querySelector("#causal-evidence-dialog").showModal();
 }
 function causalLayerText(structure){
-  return CAUSAL_LAYER_DEFINITIONS.map(layer=>"【"+layer.label+"】\n"+structure.layers[layer.key].map(node=>"・"+node.name+"（関連カード "+node.issues.length+"件）\n  根拠："+(node.evidence.slice(0,2).join(" / ")||"未入力")).join("\n")).join("\n\n");
+  return CAUSAL_LAYER_DEFINITIONS.map(layer=>"【"+layer.label+"】\n"+structure.layers[layer.key].map(node=>{
+    const roles=uniqueNodeValues(node,"role").join("、")||"未入力",themes=uniqueNodeValues(node,"theme").join("、")||"未入力";
+    return"要点："+node.name+"\n分類："+layer.label+"\n該当カード件数："+node.issues.length+"件\nこの要点に整理した理由："+nodeReasonText(node)+"\n該当する回答：\n"+nodeAnswerLines(node).map(value=>"・"+value).join("\n")+"\n回答者の立場："+roles+"\n関連テーマ："+themes;
+  }).join("\n\n")).join("\n\n");
 }
 function setCopyButtonMessage(button,message,defaultLabel){
   button.textContent=message;setTimeout(()=>button.textContent=defaultLabel,2200);
@@ -253,15 +294,15 @@ function renderCausalStructure(issues){
   });
   appendList(document.querySelector("#short-term-issues"),latestCausalStructure.shortTerm.map(node=>node.name+"（"+node.issues.length+"件）: 運用変更やICT等で3か月以内の試行を検討"),"短期改善候補は、管理者との確認後に整理してください。");
   appendList(document.querySelector("#long-term-issues"),latestCausalStructure.longTerm.map(node=>node.name+"（"+node.issues.length+"件）"),"中長期課題候補は、管理者との確認後に整理してください。");
-  appendList(document.querySelector("#confirmation-points"),latestCausalStructure.confirmationPoints,"確認論点はありません。");
-  appendList(document.querySelector("#interview-questions"),latestCausalStructure.interviewQuestions,"確認質問はありません。");
-  latestCausalCopyText={layers:causalLayerText(latestCausalStructure),longTerm:latestCausalStructure.longTerm.length?"【中長期課題候補】\n"+latestCausalStructure.longTerm.map(node=>"・"+node.name+"（関連カード "+node.issues.length+"件）").join("\n"):"",questions:latestCausalStructure.interviewQuestions.length?"【管理者・活動推進リーダーへの確認質問】\n"+latestCausalStructure.interviewQuestions.map(item=>"・"+item).join("\n"):""};
+  appendList(document.querySelector("#confirmation-points"),latestCausalStructure.confirmationPoints,latestCausalStructure.confirmationSummary);
+  appendList(document.querySelector("#interview-questions"),latestCausalStructure.interviewQuestions,latestCausalStructure.confirmationSummary);
+  const questionItems=latestCausalStructure.interviewQuestions.length?latestCausalStructure.interviewQuestions:[latestCausalStructure.confirmationSummary];latestCausalCopyText={layers:causalLayerText(latestCausalStructure),longTerm:latestCausalStructure.longTerm.length?"【中長期課題候補】\n"+latestCausalStructure.longTerm.map(node=>"・"+node.name+"（該当カード "+node.issues.length+"件）").join("\n"):"",questions:"【追加確認が必要な場合の質問】\n"+questionItems.map(item=>"・"+item).join("\n")};
 }
 document.querySelector("#evidence-dialog-close").addEventListener("click",()=>document.querySelector("#causal-evidence-dialog").close());
 document.querySelector("#causal-evidence-dialog").addEventListener("click",event=>{if(event.target===event.currentTarget)event.currentTarget.close()});
 document.querySelector("#copy-causal-layers").addEventListener("click",event=>copyTextContent(latestCausalCopyText.layers,event.currentTarget,"4層整理をコピー"));
 document.querySelector("#copy-long-term").addEventListener("click",event=>copyTextContent(latestCausalCopyText.longTerm,event.currentTarget,"中長期課題候補をコピー"));
-document.querySelector("#copy-interview-questions").addEventListener("click",event=>copyTextContent(latestCausalCopyText.questions,event.currentTarget,"確認質問をコピー"));
+document.querySelector("#copy-interview-questions").addEventListener("click",event=>copyTextContent(latestCausalCopyText.questions,event.currentTarget,"追加確認質問をコピー"));
 
 
 function selectPlannerTab(name){
