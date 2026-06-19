@@ -63,7 +63,7 @@ function calculateCsvIssues(rows){
     return {...x,title:x.gap||x.current||x.theme+"の改善",problemCategories:mapByIncludes(x.theme,Q1_CATEGORY_MAP),categories:mapByIncludes(x.direction,DIRECTION_CATEGORY_MAP),priorityScore:score,priorityReason:"同テーマ "+(themeCounts[x.theme]||1)+"件・同じギャップ "+(gapCounts[x.gap]||1)+"件・回答者立場 "+(roles[x.theme]?.size||1)+"種類"+(x.direction.includes("制度設計")?"。中長期テーマとして整理":"。着手しやすさを加味")};
   }).sort((a,b)=>b.priorityScore-a.priorityScore);
 }
-function plannerTokens(text){return normalized(text||"").split(/[、,・。/／\s]+/).filter(x=>x.length>1)}
+function plannerTokens(text){return String(text||"").toLocaleLowerCase("ja").split(/[、,・。/／\s]+/).map(value=>value.trim()).filter(value=>value.length>1)}
 function findRelatedCases(issue,limit=5){
   const keywords=plannerTokens([issue.title,issue.current,issue.desired,issue.gap,issue.resolved,issue.keywords].join(" "));
   return state.cases.map(item=>{
