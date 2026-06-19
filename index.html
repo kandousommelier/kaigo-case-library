@@ -56,6 +56,20 @@
           <p class="planner-status" id="csv-status">CSVを選択すると、回答を集計して課題カードを作成します。</p>
           <div class="csv-summary" id="csv-summary" hidden></div>
           <div class="issue-list" id="csv-issue-list"></div>
+        <section class="causal-draft" id="causal-draft" hidden aria-labelledby="causal-title">
+          <div class="causal-heading">
+            <div><p class="section-kicker">CAUSAL DRAFT</p><h3 id="causal-title">因果関係図のたたき台</h3></div>
+            <button type="button" class="causal-copy-button" id="copy-causal-layers">4層整理をコピー</button>
+          </div>
+          <p class="causal-description">本整理は、問題虫めがね、アンケート、インタビュー内容をもとに作成する因果関係図のたたき台です。現時点では課題構造の仮説であり、管理者・活動推進リーダーへの確認を通じて修正します。</p>
+          <div class="causal-layers" id="causal-layers"></div>
+          <div class="causal-analysis">
+            <section class="analysis-card"><h4>短期改善に向く課題</h4><ul id="short-term-issues"></ul></section>
+            <section class="analysis-card"><div class="analysis-card-head"><h4>中長期で扱う課題</h4><button type="button" class="text-copy-button" id="copy-long-term">中長期課題候補をコピー</button></div><ul id="long-term-issues"></ul></section>
+            <section class="analysis-card"><h4>管理者・活動推進リーダーに確認すべき論点</h4><ul id="confirmation-points"></ul></section>
+            <section class="analysis-card"><div class="analysis-card-head"><h4>次回インタビューで確認する質問</h4><button type="button" class="text-copy-button" id="copy-interview-questions">確認質問をコピー</button></div><ul id="interview-questions"></ul></section>
+          </div>
+        </section>
         </div>
         <div class="planner-panel" id="planner-manual-panel" role="tabpanel" hidden>
           <form class="manual-form" id="manual-plan-form">
@@ -74,20 +88,7 @@
           <p id="selected-case-message">各事例の「この事例をもとに計画を作る」ボタンから開始できます。</p>
         </div>
         <div class="plan-output" id="plan-output" hidden aria-live="polite"></div>
-        <section class="causal-draft" id="causal-draft" hidden aria-labelledby="causal-title">
-          <div class="causal-heading">
-            <div><p class="section-kicker">CAUSAL DRAFT</p><h3 id="causal-title">課題構造の4層整理</h3></div>
-            <button type="button" class="causal-copy-button" id="copy-causal-layers">4層整理をコピー</button>
-          </div>
-          <p class="causal-description">本整理は、問題虫めがね、アンケート、インタビュー内容をもとに作成する因果関係図のたたき台です。現時点では課題構造の仮説であり、管理者・活動推進リーダーへの確認を通じて修正します。</p>
-          <div class="causal-layers" id="causal-layers"></div>
-          <div class="causal-analysis">
-            <section class="analysis-card"><h4>短期改善に向く課題</h4><ul id="short-term-issues"></ul></section>
-            <section class="analysis-card"><div class="analysis-card-head"><h4>中長期で扱う課題</h4><button type="button" class="text-copy-button" id="copy-long-term">中長期課題候補をコピー</button></div><ul id="long-term-issues"></ul></section>
-            <section class="analysis-card"><h4>管理者・活動推進リーダーに確認すべき論点</h4><ul id="confirmation-points"></ul></section>
-            <section class="analysis-card"><div class="analysis-card-head"><h4>次回インタビューで確認する質問</h4><button type="button" class="text-copy-button" id="copy-interview-questions">確認質問をコピー</button></div><ul id="interview-questions"></ul></section>
-          </div>
-        </section>
+
       </section>
 
       <div class="result-bar" aria-live="polite">
