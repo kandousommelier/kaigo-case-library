@@ -230,8 +230,8 @@ function fallbackCopyText(text,done){
   const area=document.createElement("textarea");area.value=text;document.body.append(area);area.select();document.execCommand("copy");area.remove();done();
 }
 function renderCausalStructure(issues){
-  latestCausalStructure=buildCausalStructure(issues);
   const section=document.querySelector("#causal-draft");section.hidden=false;
+  latestCausalStructure=buildCausalStructure(issues);
   const layers=document.querySelector("#causal-layers");layers.replaceChildren();
   CAUSAL_LAYER_DEFINITIONS.forEach((definition,index)=>{
     const column=document.createElement("section");column.className="causal-layer";
@@ -271,7 +271,7 @@ function renderIssueCards(issues){
 }
 document.querySelectorAll(".planner-tab").forEach(button=>button.addEventListener("click",()=>selectPlannerTab(button.dataset.plannerTab)));
 PROBLEM_CATEGORIES.forEach(value=>{const option=document.createElement("option");option.value=value;option.textContent=value;document.querySelector('#manual-plan-form select[name="problemCategory"]').append(option)});
-document.querySelector("#problem-csv-input").addEventListener("change",event=>{const file=event.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const rows=parseCSV(String(reader.result));if(!rows.length)throw new Error();csvIssues=calculateCsvIssues(rows);document.querySelector("#csv-status").textContent=rows.length+"件を読み込み、"+csvIssues.length+"件の課題カードを作成しました。";renderCsvSummary(rows,csvIssues);renderIssueCards(csvIssues);renderCausalStructure(csvIssues)}catch(error){document.querySelector("#csv-status").textContent="CSVを読み取れませんでした。見出しと文字コード（UTF-8）を確認してください。"}};reader.readAsText(file,"UTF-8")});
+document.querySelector("#problem-csv-input").addEventListener("change",event=>{const file=event.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const rows=parseCSV(String(reader.result));if(!rows.length)throw new Error();csvIssues=calculateCsvIssues(rows);document.querySelector("#csv-status").textContent=rows.length+"件を読み込み、"+csvIssues.length+"件の課題カードを作成しました。";renderCsvSummary(rows,csvIssues);renderIssueCards(csvIssues);renderCausalStructure(csvIssues);document.querySelector("#csv-status").textContent+=" 因果関係図のたたき台を表示しました。"}catch(error){document.querySelector("#csv-status").textContent="CSVを読み取れませんでした。見出しと文字コード（UTF-8）を確認してください。"}};reader.readAsText(file,"UTF-8")});
 document.querySelector("#manual-plan-form").addEventListener("submit",event=>{event.preventDefault();const values=Object.fromEntries(new FormData(event.currentTarget));renderPlan({title:values.title,current:values.current,desired:values.desired,problemCategories:[values.problemCategory],categories:mapByIncludes(values.direction,DIRECTION_CATEGORY_MAP),direction:values.direction,service:values.service,keywords:values.keywords,priorityReason:"手入力された課題をもとに、分類・方向性・キーワードが近い事例を優先"})});
 
 loadCases();
