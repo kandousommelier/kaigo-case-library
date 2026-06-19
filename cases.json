@@ -15,7 +15,11 @@
     "tip": "最初から完璧を目指さず、使いながら直す。",
     "suitableFor": "注意点や手順が口頭伝達に偏る訪問介護事業所",
     "supportUse": "必要な申し送り情報を洗い出すワークに使う。",
-    "source": "https://www.mhlw.go.jp/content/12300000/000934621.pdf"
+    "source": "https://www.mhlw.go.jp/content/12300000/000934621.pdf",
+    "sourceType": "厚生労働省PDF",
+    "sourceTitle": "介護分野における生産性向上の取組の好事例（令和3年度モデル事業）",
+    "sourcePdf": "https://www.mhlw.go.jp/content/12300000/000934621.pdf",
+    "sourceNote": "事業所別事例PDF"
   },
   {
     "id": 2,
@@ -33,7 +37,11 @@
     "tip": "問い合わせが多い一テーマから一枚にまとめる。",
     "suitableFor": "買い物支援の可否確認が繰り返される訪問介護事業所",
     "supportUse": "問い合わせを分類し、よくある質問リスト作成につなげる。",
-    "source": "https://www.mhlw.go.jp/content/12300000/000934622.pdf"
+    "source": "https://www.mhlw.go.jp/content/12300000/000934622.pdf",
+    "sourceType": "厚生労働省PDF",
+    "sourceTitle": "介護分野における生産性向上の取組の好事例（令和3年度モデル事業）",
+    "sourcePdf": "https://www.mhlw.go.jp/content/12300000/000934622.pdf",
+    "sourceNote": "事業所別事例PDF"
   },
   {
     "id": 3,
@@ -51,7 +59,11 @@
     "tip": "新様式を増やす前に既存ツールの使い方を揃える。",
     "suitableFor": "連絡票や記録様式が複数あり情報が分散する事業所",
     "supportUse": "情報の置き場所と必須記録を整理する対話に使う。",
-    "source": "https://www.mhlw.go.jp/content/12300000/000934623.pdf"
+    "source": "https://www.mhlw.go.jp/content/12300000/000934623.pdf",
+    "sourceType": "厚生労働省PDF",
+    "sourceTitle": "介護分野における生産性向上の取組の好事例（令和3年度モデル事業）",
+    "sourcePdf": "https://www.mhlw.go.jp/content/12300000/000934623.pdf",
+    "sourceNote": "事業所別事例PDF"
   },
   {
     "id": 4,
@@ -69,7 +81,11 @@
     "tip": "時間調査は責めず、工夫と余力を見つけるために行う。",
     "suitableFor": "職員によって動き方が異なる通所系事業所",
     "supportUse": "仕事の流れを調べる入口事例にする。",
-    "source": "https://www.mhlw.go.jp/content/12300000/000934624.pdf"
+    "source": "https://www.mhlw.go.jp/content/12300000/000934624.pdf",
+    "sourceType": "厚生労働省PDF",
+    "sourceTitle": "介護分野における生産性向上の取組の好事例（令和3年度モデル事業）",
+    "sourcePdf": "https://www.mhlw.go.jp/content/12300000/000934624.pdf",
+    "sourceNote": "事業所別事例PDF"
   },
   {
     "id": 5,
@@ -87,7 +103,11 @@
     "tip": "10分、15分、20分など時間別に仕事を決める。",
     "suitableFor": "業務の合間の動きにばらつきがある事業所",
     "supportUse": "手待ち時間と短時間でできる業務を整理する。",
-    "source": "https://www.mhlw.go.jp/content/12300000/000934625.pdf"
+    "source": "https://www.mhlw.go.jp/content/12300000/000934625.pdf",
+    "sourceType": "厚生労働省PDF",
+    "sourceTitle": "介護分野における生産性向上の取組の好事例（令和3年度モデル事業）",
+    "sourcePdf": "https://www.mhlw.go.jp/content/12300000/000934625.pdf",
+    "sourceNote": "事業所別事例PDF"
   },
   {
     "id": 6,
@@ -105,7 +125,11 @@
     "tip": "応援時刻と担当業務まで明確にする。",
     "suitableFor": "入浴日に見守りが一部職員へ集中する施設",
     "supportUse": "繁忙時間の配置と応援条件を決める検討に使う。",
-    "source": "https://www.mhlw.go.jp/content/12300000/000934626.pdf"
+    "source": "https://www.mhlw.go.jp/content/12300000/000934626.pdf",
+    "sourceType": "厚生労働省PDF",
+    "sourceTitle": "介護分野における生産性向上の取組の好事例（令和3年度モデル事業）",
+    "sourcePdf": "https://www.mhlw.go.jp/content/12300000/000934626.pdf",
+    "sourceNote": "事業所別事例PDF"
   },
   {
     "id": 7,
@@ -124,7 +148,11 @@
     "tip": "担当表示と手順書で誰が・どう行うかを揃える。",
     "suitableFor": "食後ケアや見守り担当が曖昧な施設",
     "supportUse": "時間帯別の担当と安全上の抜けを確認する。",
-    "source": "https://www.mhlw.go.jp/content/12300000/000934627.pdf"
+    "source": "https://www.mhlw.go.jp/content/12300000/000934627.pdf",
+    "sourceType": "厚生労働省PDF",
+    "sourceTitle": "介護分野における生産性向上の取組の好事例（令和3年度モデル事業）",
+    "sourcePdf": "https://www.mhlw.go.jp/content/12300000/000934627.pdf",
+    "sourceNote": "事業所別事例PDF"
   },
   {
     "id": 8,
@@ -142,7 +170,11 @@
     "tip": "勤務前に必ず読む情報を決める。",
     "suitableFor": "記録量が多く情報確認に時間がかかる訪問系事業所",
     "supportUse": "記録を必須確認と必要時確認に分ける。",
-    "source": "https://www.mhlw.go.jp/content/12300000/000934628.pdf"
+    "source": "https://www.mhlw.go.jp/content/12300000/000934628.pdf",
+    "sourceType": "厚生労働省PDF",
+    "sourceTitle": "介護分野における生産性向上の取組の好事例（令和3年度モデル事業）",
+    "sourcePdf": "https://www.mhlw.go.jp/content/12300000/000934628.pdf",
+    "sourceNote": "事業所別事例PDF"
   },
   {
     "id": 9,
@@ -160,7 +192,11 @@
     "tip": "整理前後の写真で変化を共有する。",
     "suitableFor": "事務所や倉庫の定位置が決まっていない施設",
     "supportUse": "必要性・使用頻度・定位置を決める5Sに使う。",
-    "source": "https://www.mhlw.go.jp/content/12300000/000934630.pdf"
+    "source": "https://www.mhlw.go.jp/content/12300000/000934630.pdf",
+    "sourceType": "厚生労働省PDF",
+    "sourceTitle": "介護分野における生産性向上の取組の好事例（令和3年度モデル事業）",
+    "sourcePdf": "https://www.mhlw.go.jp/content/12300000/000934630.pdf",
+    "sourceNote": "事業所別事例PDF"
   },
   {
     "id": 10,
@@ -178,7 +214,11 @@
     "tip": "繁忙時間だけ切り出して役割を試す。",
     "suitableFor": "送迎・受け入れ時に業務が集中する施設",
     "supportUse": "時間帯別の業務量と配置を見える化する。",
-    "source": "https://www.mhlw.go.jp/content/12300000/000934631.pdf"
+    "source": "https://www.mhlw.go.jp/content/12300000/000934631.pdf",
+    "sourceType": "厚生労働省PDF",
+    "sourceTitle": "介護分野における生産性向上の取組の好事例（令和3年度モデル事業）",
+    "sourcePdf": "https://www.mhlw.go.jp/content/12300000/000934631.pdf",
+    "sourceNote": "事業所別事例PDF"
   },
   {
     "id": 11,
@@ -197,7 +237,11 @@
     "tip": "必ず聞く項目を一枚にする。",
     "suitableFor": "電話対応が特定職員に偏る事業所",
     "supportUse": "不安を聞き取り、対応フローと練習を作る。",
-    "source": "https://www.mhlw.go.jp/content/12300000/000934632.pdf"
+    "source": "https://www.mhlw.go.jp/content/12300000/000934632.pdf",
+    "sourceType": "厚生労働省PDF",
+    "sourceTitle": "介護分野における生産性向上の取組の好事例（令和3年度モデル事業）",
+    "sourcePdf": "https://www.mhlw.go.jp/content/12300000/000934632.pdf",
+    "sourceNote": "事業所別事例PDF"
   },
   {
     "id": 12,
@@ -216,7 +260,11 @@
     "tip": "介助者役と利用者役を交代し体感して学ぶ。",
     "suitableFor": "身体介護への不安が残る訪問系事業所",
     "supportUse": "新人の不安から優先研修を組み立てる。",
-    "source": "https://www.mhlw.go.jp/content/12300000/000934634.pdf"
+    "source": "https://www.mhlw.go.jp/content/12300000/000934634.pdf",
+    "sourceType": "厚生労働省PDF",
+    "sourceTitle": "介護分野における生産性向上の取組の好事例（令和3年度モデル事業）",
+    "sourcePdf": "https://www.mhlw.go.jp/content/12300000/000934634.pdf",
+    "sourceNote": "事業所別事例PDF"
   },
   {
     "id": 13,
@@ -235,7 +283,11 @@
     "tip": "物の配置と準備の順番を一緒に見直す。",
     "suitableFor": "行事準備の負担と収納への往復が多い通所系事業所",
     "supportUse": "一つの準備業務の工程・物品・移動を観察する。",
-    "source": "https://www.mhlw.go.jp/content/12300000/000934638.pdf"
+    "source": "https://www.mhlw.go.jp/content/12300000/000934638.pdf",
+    "sourceType": "厚生労働省PDF",
+    "sourceTitle": "介護分野における生産性向上の取組の好事例（令和3年度モデル事業）",
+    "sourcePdf": "https://www.mhlw.go.jp/content/12300000/000934638.pdf",
+    "sourceNote": "事業所別事例PDF"
   },
   {
     "id": 14,
@@ -254,7 +306,11 @@
     "tip": "何を書くかと、残す目的を具体例で示す。",
     "suitableFor": "ICT記録の入力内容や習熟度に差がある訪問介護事業所",
     "supportUse": "未入力理由を研修・支援・ルールに分けて考える。",
-    "source": "https://www.mhlw.go.jp/content/12300000/000934640.pdf"
+    "source": "https://www.mhlw.go.jp/content/12300000/000934640.pdf",
+    "sourceType": "厚生労働省PDF",
+    "sourceTitle": "介護分野における生産性向上の取組の好事例（令和3年度モデル事業）",
+    "sourcePdf": "https://www.mhlw.go.jp/content/12300000/000934640.pdf",
+    "sourceNote": "事業所別事例PDF"
   },
   {
     "id": 15,
@@ -273,7 +329,11 @@
     "tip": "定型文と画面付き手順を用意する。",
     "suitableFor": "連絡帳入力でフロアが手薄になる通所系事業所",
     "supportUse": "記録を転記・定型・個別記述に分ける。",
-    "source": "https://www.mhlw.go.jp/content/12300000/000934641.pdf"
+    "source": "https://www.mhlw.go.jp/content/12300000/000934641.pdf",
+    "sourceType": "厚生労働省PDF",
+    "sourceTitle": "介護分野における生産性向上の取組の好事例（令和3年度モデル事業）",
+    "sourcePdf": "https://www.mhlw.go.jp/content/12300000/000934641.pdf",
+    "sourceNote": "事業所別事例PDF"
   },
   {
     "id": 16,
@@ -291,7 +351,11 @@
     "tip": "ICT導入と画面に沿った手順書をセットにする。",
     "suitableFor": "FAX・印刷・送付に二度手間が多い事業所",
     "supportUse": "書類業務の工程から二度手間を探す。",
-    "source": "https://www.mhlw.go.jp/content/12300000/000934642.pdf"
+    "source": "https://www.mhlw.go.jp/content/12300000/000934642.pdf",
+    "sourceType": "厚生労働省PDF",
+    "sourceTitle": "介護分野における生産性向上の取組の好事例（令和3年度モデル事業）",
+    "sourcePdf": "https://www.mhlw.go.jp/content/12300000/000934642.pdf",
+    "sourceNote": "事業所別事例PDF"
   },
   {
     "id": 17,
@@ -309,7 +373,11 @@
     "tip": "分類名と保管期限を職員で揃える。",
     "suitableFor": "書類の保管場所が分散する居宅介護支援事業所",
     "supportUse": "使用頻度・期限・共有範囲で書類を分ける。",
-    "source": "https://www.mhlw.go.jp/content/12300000/000934643.pdf"
+    "source": "https://www.mhlw.go.jp/content/12300000/000934643.pdf",
+    "sourceType": "厚生労働省PDF",
+    "sourceTitle": "介護分野における生産性向上の取組の好事例（令和3年度モデル事業）",
+    "sourcePdf": "https://www.mhlw.go.jp/content/12300000/000934643.pdf",
+    "sourceNote": "事業所別事例PDF"
   },
   {
     "id": 18,
@@ -328,7 +396,11 @@
     "tip": "資料の保管上限と見直し日を決める。",
     "suitableFor": "紙資料と予定表が増えた居宅介護支援事業所",
     "supportUse": "書類・予定・電話のムダを分けて考える。",
-    "source": "https://www.mhlw.go.jp/content/12300000/000934644.pdf"
+    "source": "https://www.mhlw.go.jp/content/12300000/000934644.pdf",
+    "sourceType": "厚生労働省PDF",
+    "sourceTitle": "介護分野における生産性向上の取組の好事例（令和3年度モデル事業）",
+    "sourcePdf": "https://www.mhlw.go.jp/content/12300000/000934644.pdf",
+    "sourceNote": "事業所別事例PDF"
   },
   {
     "id": 19,
@@ -347,7 +419,11 @@
     "tip": "共有手段ごとに目的と扱う内容を決める。",
     "suitableFor": "報告が重なり、暗黙ルールが多い事業所",
     "supportUse": "共有手段の役割と会議目的を整理する。",
-    "source": "https://www.mhlw.go.jp/content/12300000/000934645.pdf"
+    "source": "https://www.mhlw.go.jp/content/12300000/000934645.pdf",
+    "sourceType": "厚生労働省PDF",
+    "sourceTitle": "介護分野における生産性向上の取組の好事例（令和3年度モデル事業）",
+    "sourcePdf": "https://www.mhlw.go.jp/content/12300000/000934645.pdf",
+    "sourceNote": "事業所別事例PDF"
   },
   {
     "id": 20,
@@ -366,7 +442,11 @@
     "tip": "操作と情報の活用目的を一緒に共有する。",
     "suitableFor": "LIFE入力が特定職員に集中する施設",
     "supportUse": "入力・意味づけ・教育を分けて検討する。",
-    "source": "https://www.mhlw.go.jp/content/12300000/001016616.pdf"
+    "source": "https://www.mhlw.go.jp/content/12300000/001016616.pdf",
+    "sourceType": "厚生労働省PDF",
+    "sourceTitle": "介護分野における生産性向上の取組の好事例（令和3年度モデル事業）",
+    "sourcePdf": "https://www.mhlw.go.jp/content/12300000/001016616.pdf",
+    "sourceNote": "事業所別事例PDF"
   },
   {
     "id": 21,
@@ -384,7 +464,11 @@
     "tip": "定位置表示と在庫表をセットにする。",
     "suitableFor": "在庫と収納場所を共有できていない施設",
     "supportUse": "購入・保管・使用・補充の流れを決める。",
-    "source": "https://www.mhlw.go.jp/content/12300000/000934649.pdf"
+    "source": "https://www.mhlw.go.jp/content/12300000/000934649.pdf",
+    "sourceType": "厚生労働省PDF",
+    "sourceTitle": "介護分野における生産性向上の取組の好事例（令和3年度モデル事業）",
+    "sourcePdf": "https://www.mhlw.go.jp/content/12300000/000934649.pdf",
+    "sourceNote": "事業所別事例PDF"
   },
   {
     "id": 22,
@@ -403,7 +487,11 @@
     "tip": "実画面と操作を対応させて手順書を直す。",
     "suitableFor": "記録操作のスキルと教え方に差がある施設",
     "supportUse": "導入後のつまずきをマニュアル改訂につなげる。",
-    "source": "https://www.mhlw.go.jp/content/12300000/001016617.pdf"
+    "source": "https://www.mhlw.go.jp/content/12300000/001016617.pdf",
+    "sourceType": "厚生労働省PDF",
+    "sourceTitle": "介護分野における生産性向上の取組の好事例（令和3年度モデル事業）",
+    "sourcePdf": "https://www.mhlw.go.jp/content/12300000/001016617.pdf",
+    "sourceNote": "事業所別事例PDF"
   },
   {
     "id": 23,
@@ -421,7 +509,11 @@
     "tip": "整理後の写真と維持ルールを共有する。",
     "suitableFor": "共用収納の探し物が多い施設",
     "supportUse": "一箇所の5Sと写真共有から始める。",
-    "source": "https://www.mhlw.go.jp/content/12300000/000934654.pdf"
+    "source": "https://www.mhlw.go.jp/content/12300000/000934654.pdf",
+    "sourceType": "厚生労働省PDF",
+    "sourceTitle": "介護分野における生産性向上の取組の好事例（令和3年度モデル事業）",
+    "sourcePdf": "https://www.mhlw.go.jp/content/12300000/000934654.pdf",
+    "sourceNote": "事業所別事例PDF"
   },
   {
     "id": 24,
@@ -439,7 +531,11 @@
     "tip": "掲示場所、外す時期、確認方法を決める。",
     "suitableFor": "掲示物や回覧が多く確認漏れがある施設",
     "supportUse": "期限・対象者・確認方法で掲示を整理する。",
-    "source": "https://www.mhlw.go.jp/content/12300000/000934662.pdf"
+    "source": "https://www.mhlw.go.jp/content/12300000/000934662.pdf",
+    "sourceType": "厚生労働省PDF",
+    "sourceTitle": "介護分野における生産性向上の取組の好事例（令和3年度モデル事業）",
+    "sourcePdf": "https://www.mhlw.go.jp/content/12300000/000934662.pdf",
+    "sourceNote": "事業所別事例PDF"
   },
   {
     "id": 25,
@@ -458,6 +554,10 @@
     "tip": "前後の予定を動かして集中時間を作る。",
     "suitableFor": "記録と申し送りが重なり残業が生じる施設",
     "supportUse": "午後業務を時系列に並べ、動かせる時刻を探す。",
-    "source": "https://www.mhlw.go.jp/content/12300000/000934664.pdf"
+    "source": "https://www.mhlw.go.jp/content/12300000/000934664.pdf",
+    "sourceType": "厚生労働省PDF",
+    "sourceTitle": "介護分野における生産性向上の取組の好事例（令和3年度モデル事業）",
+    "sourcePdf": "https://www.mhlw.go.jp/content/12300000/000934664.pdf",
+    "sourceNote": "事業所別事例PDF"
   }
 ]

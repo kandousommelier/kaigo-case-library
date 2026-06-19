@@ -16,7 +16,7 @@
 
 ## データ項目
 
-`cases.json` の各事例は `id`、`title`、`service`、`problemCategory`、`problemDetails`、`categories`、`approach`、`outcome`、`tip`、`suitableFor`、`supportUse`、`source` で構成します。ローカルで直接開く使い方も維持する場合は、`app.js` の `FALLBACK_CASES` にも同じ内容を反映してください。
+`cases.json` の各事例は `id`、`title`、`service`、`problemCategory`、`problemDetails`、`categories`、`approach`、`outcome`、`tip`、`suitableFor`、`supportUse`、`source`、`sourceType`、`sourceTitle`、`sourcePdf`、および `sourcePage` または `sourceNote` で構成します。ローカルで直接開く使い方も維持する場合は、`app.js` の `FALLBACK_CASES` にも同じ内容を反映してください。
 
 ## 「問題虫めがね」との共通ルール
 
@@ -28,3 +28,58 @@
 ## 注意
 
 掲載事例は厚生労働省掲載資料をもとに、伴走支援で使いやすいよう短く要約しています。詳細は各事例の出典資料をご確認ください。
+
+## PDFから事例を追加する手順
+
+このアプリは、厚生労働省のサービス別冊子から作成したJSON事例を追加できます。PDF本文の抽出・要約はこのリポジトリでは行わず、内容を確認して作成済みのJSONを登録してください。
+
+### 登録対象の出典資料
+
+- 居宅系サービス: https://www.mhlw.go.jp/content/12300000/001545563.pdf
+- 施設系サービス: https://www.mhlw.go.jp/content/12300000/001545561.pdf
+- 医療系サービス: https://www.mhlw.go.jp/content/12300000/001545566.pdf
+- その他追加資料: https://www.mhlw.go.jp/content/12300000/001546625.pdf
+
+### 1. 事例JSONを用意する
+
+```json
+{
+  "id": 26,
+  "title": "事例タイトル",
+  "service": "サービス種別",
+  "problemCategory": "指定された5分類のいずれか",
+  "problemDetails": "困っていたことの短い要約",
+  "categories": ["業務の見直し", "標準化"],
+  "approach": "取り組んだことの短い要約",
+  "outcome": "成果の短い要約",
+  "tip": "真似できるポイント",
+  "suitableFor": "この事例が向いている施設",
+  "supportUse": "伴走支援での使い方",
+  "source": "PDFのURL",
+  "sourceType": "厚生労働省PDF",
+  "sourceTitle": "居宅系サービス",
+  "sourcePdf": "https://www.mhlw.go.jp/content/12300000/001545563.pdf",
+  "sourcePage": "12-13ページ"
+}
+```
+
+- `sourceType`: 出典種別。サービス別冊子は `厚生労働省PDF` とします。
+- `sourceTitle`: 画面に表示する資料名。上記4資料では `居宅系サービス`、`施設系サービス`、`医療系サービス`、`その他追加資料` のいずれかを使用します。
+- `sourcePdf`: 事例が掲載されているPDFのURLです。
+- `sourcePage`: 掲載ページが分かる場合に指定します（例: `12ページ`、`12-13ページ`）。
+- `sourceNote`: ページが特定できない場合や補足が必要な場合に、`sourcePage` の代わりに指定します。
+- `source`: 既存データとの互換性のため残しています。新規登録では `sourcePdf` と同じURLを設定してください。
+
+### 2. データを反映する
+
+1. 作成済みの事例オブジェクトを `cases.json` の配列末尾へ追加します。
+2. `id` が重複せず、必須項目と出典項目が揃っていることを確認します。
+3. ローカルで `index.html` を直接開く場合のため、`app.js` の `FALLBACK_CASES` にも同じ配列を反映します。
+4. `cases.json` と `FALLBACK_CASES` が完全に一致することを確認します。
+5. 検索、困りごと5分類、サービス種別、取組分類、詳細表示、出典リンクを確認します。
+
+### 3. 記述上の注意
+
+- PDF本文を長く転載せず、カードで読める短い要約にします。
+- 成果が明確でない場合は断定的な数値を避けます。
+- `problemCategory` と `categories` はREADMEに記載された既存分類を使用します。

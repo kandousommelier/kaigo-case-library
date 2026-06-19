@@ -19,3 +19,6 @@ footer{padding:35px 24px;color:#d7e4e2;background:var(--ink);text-align:center;f
 .suitable-section{margin:2px 0 16px;padding:13px 14px;background:#f6f9f8;border:1px solid var(--line);border-radius:10px}.suitable-section .card-label{position:static;display:block;margin-bottom:3px;color:var(--brand)}.suitable-section p{margin:0;font-size:13px}
 .dialog-block{padding-bottom:18px;border-bottom:1px solid var(--line)}.dialog-block:last-of-type{border-bottom:0}.dialog-block h3{font-size:14px}
 @media(max-width:720px){#problem-tags{grid-template-columns:1fr}.problem-badge{padding:11px 12px}.suitable-section{padding:12px}}
+
+.case-source{margin:-10px 0 16px;padding-bottom:12px;color:var(--muted);border-bottom:1px solid var(--line);font-size:11px;line-height:1.55}
+.dialog-source{margin:6px 0 0;color:var(--muted);font-size:12px}
