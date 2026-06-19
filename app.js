@@ -113,7 +113,146 @@ function renderPlan(issue){
 }
 async function copyPlan(plan,button){const text=planText(plan);try{await navigator.clipboard.writeText(text)}catch(error){const area=document.createElement("textarea");area.value=text;document.body.append(area);area.select();document.execCommand("copy");area.remove()}button.textContent="コピーしました";setTimeout(()=>button.textContent="計画案をコピー",1800)}
 function selectPlannerTab(name){
-  document.querySelectorAll(".planner-tab").forEach(b=>{const active=b.dataset.plannerTab===name;b.classList.toggle("is-active",active);b.setAttribute("aria-selected",String(active))});
+  
+const CAUSAL_LAYER_DEFINITIONS=[
+  {key:"background",label:"背景要因",description:"組織・体制・環境・人材"},
+  {key:"direct",label:"直接原因",description:"困りごとを直接生む要因"},
+  {key:"field",label:"現場で起きている困りごと",description:"職員が実際に困っていること"},
+  {key:"risk",label:"影響・リスク",description:"結果として生じる悪影響"}
+];
+const STRUCTURE_KEYWORDS=/人材|教育|体制|ルール|会議体|会議|ICT環境|ICT|管理|リーダー|定着|役割分担|標準化|情報共有|記録/;
+const RISK_KEYWORDS=/負担|残業|確認漏れ|漏れ|ミス|サービス品質|品質|安全|離職|不安|ばらつき|偏り|時間がかか|遅れ|事故/;
+let latestCausalStructure=null;
+function conciseNodeName(value,fallback){
+  const clean=String(value||"").replace(/\s+/g," ").trim();
+  return clean?(clean.length>52?clean.slice(0,51)+"…":clean):fallback;
+}
+function splitIssueItems(value){
+  return String(value||"").split(/[\n、,，;；／]+/).map(item=>item.trim()).filter(item=>item.length>1);
+}
+function structuralNodeName(text){
+  if(/教育|人材育成|新人/.test(text))return"教育・人材育成体制が十分でない";
+  if(/会議体|会議/.test(text))return"改善を継続する会議体が弱い";
+  if(/ICT環境|ICT|システム|端末/.test(text))return"ICT活用の環境・運用が定着していない";
+  if(/管理者|管理|リーダー/.test(text))return"管理者・リーダー層の推進体制が弱い";
+  if(/役割分担|役割/.test(text))return"役割分担を見直す仕組みが弱い";
+  if(/情報共有|申し送り/.test(text))return"情報共有を標準化する場やルールが弱い";
+  if(/記録/.test(text))return"記録方法を標準化する場やルールが弱い";
+  if(/ルール|標準化|定着|体制/.test(text))return"運用ルールを整え定着させる仕組みが弱い";
+  return"";
+}
+function defaultRiskName(issue){
+  const categories=(issue.problemCategories||[]).join(" ");
+  if(categories.includes("記録")||categories.includes("連絡"))return"確認漏れや情報共有のばらつきが生じる";
+  if(categories.includes("仕事の流れ"))return"職員負担や役割の偏りが続く";
+  if(categories.includes("物を探す"))return"準備・移動時間と職員負担が増える";
+  if(categories.includes("目標"))return"改善活動が定着しにくい";
+  return"職員負担とサービス品質への影響が続く";
+}
+function buildCausalStructure(issues){
+  const buckets=Object.fromEntries(CAUSAL_LAYER_DEFINITIONS.map(layer=>[layer.key,new Map()]));
+  function addNode(layer,name,issue,evidence){
+    const safeName=conciseNodeName(name,layer==="risk"?defaultRiskName(issue):"未整理の課題");
+    const key=normalized(safeName);
+    if(!buckets[layer].has(key))buckets[layer].set(key,{layer,name:safeName,issues:[],evidence:new Set()});
+    const node=buckets[layer].get(key);
+    if(!node.issues.some(item=>item.id===issue.id))node.issues.push(issue);
+    if(evidence)node.evidence.add(evidence);
+  }
+  issues.forEach(issue=>{
+    const structuralText=[issue.gap,issue.direction,issue.current,issue.currentItems].join(" ");
+    const backgroundName=STRUCTURE_KEYWORDS.test(structuralText)?structuralNodeName(structuralText):"";
+    if(backgroundName)addNode("background",backgroundName,issue,issue.gap||issue.direction);
+    if(issue.direction.includes("制度設計"))addNode("background","組織・制度として改善を支える体制が必要",issue,issue.direction);
+    if(issue.gap)addNode("direct",issue.gap,issue,issue.gap);
+    if(issue.direction){
+      const directionCause=issue.direction.includes("制度設計")?"制度・体制の整備が必要":issue.direction+"の進め方が十分に整っていない";
+      addNode("direct",directionCause,issue,issue.direction);
+    }
+    const fieldItems=splitIssueItems(issue.currentItems);
+    fieldItems.forEach(item=>addNode("field",item,issue,issue.currentItems));
+    if(issue.current&&!fieldItems.some(item=>normalized(issue.current).includes(normalized(item))))addNode("field",issue.current,issue,issue.current);
+    const riskSources=[issue.current,issue.currentItems,issue.gap].filter(Boolean);
+    const matched=riskSources.filter(value=>RISK_KEYWORDS.test(value));
+    if(matched.length)matched.forEach(value=>addNode("risk",value,issue,value));
+    else addNode("risk",defaultRiskName(issue),issue,issue.current||issue.gap);
+  });
+  const layers={};
+  CAUSAL_LAYER_DEFINITIONS.forEach(layer=>{
+    layers[layer.key]=[...buckets[layer.key].values()].map(node=>({...node,evidence:[...node.evidence]})).sort((a,b)=>b.issues.length-a.issues.length||a.name.localeCompare(b.name,"ja")).slice(0,8);
+  });
+  const shortTerm=layers.field.filter(node=>node.issues.some(issue=>/運用ルール|業務プロセス変更|ICT|道具/.test(issue.direction))&&node.issues.some(issue=>findRelatedCases(issue,3).length>=3)).slice(0,5);
+  const structuralTerms=/教育|人材|役割|情報共有|記録|会議|ICT|改善|管理|リーダー|体制|ルール|定着/;
+  const longTerm=[...layers.background,...layers.direct.filter(node=>structuralTerms.test(node.name))].filter((node,index,array)=>array.findIndex(other=>normalized(other.name)===normalized(node.name))===index).sort((a,b)=>b.issues.length-a.issues.length).slice(0,8);
+  return{layers,shortTerm,longTerm};
+}
+function uniqueNodeValues(node,key){
+  return[...new Set(node.issues.map(issue=>issue[key]).filter(Boolean))];
+}
+function appendList(target,items,emptyText){
+  target.replaceChildren();
+  (items.length?items:[emptyText]).forEach(item=>{const li=document.createElement("li");li.textContent=item;target.append(li)});
+}
+function renderCausalNode(node,layerLabel){
+  const card=document.createElement("article");card.className="causal-node";
+  const kind=document.createElement("span");kind.className="node-kind";kind.textContent=layerLabel;
+  const title=document.createElement("h5");title.textContent=node.name;
+  const roles=uniqueNodeValues(node,"role"),themes=uniqueNodeValues(node,"theme");
+  const meta=document.createElement("p");meta.className="node-meta";meta.textContent="関連カード "+node.issues.length+"件 / 回答者："+(roles.join("、")||"未入力")+" / テーマ："+(themes.join("、")||"未入力");
+  const evidence=document.createElement("p");evidence.className="node-evidence";const evidenceLabel=document.createElement("strong");evidenceLabel.textContent="主な根拠文：";evidence.append(evidenceLabel,document.createTextNode(node.evidence.slice(0,2).join(" / ")||"未入力"));
+  const related=document.createElement("p");related.className="node-related";const relatedLabel=document.createElement("strong");relatedLabel.textContent="関連内容：";const qSummary=["Q2 "+uniqueNodeValues(node,"currentItems").slice(0,2).join(" / "),"Q3 "+uniqueNodeValues(node,"current").slice(0,2).join(" / "),"Q5 "+uniqueNodeValues(node,"gap").slice(0,2).join(" / "),"Q7 "+uniqueNodeValues(node,"direction").slice(0,2).join(" / ")].filter(value=>!value.endsWith(" ")).join("｜");related.append(relatedLabel,document.createTextNode(qSummary||"未入力"));
+  const button=document.createElement("button");button.type="button";button.className="evidence-button";button.textContent="根拠を見る";button.addEventListener("click",()=>openCausalEvidence(node,layerLabel));
+  card.append(kind,title,meta,evidence,related,button);return card;
+}
+function openCausalEvidence(node,layerLabel){
+  const content=document.querySelector("#causal-evidence-content");content.replaceChildren();
+  const title=document.createElement("h2");title.id="evidence-dialog-title";title.textContent=node.name;
+  const intro=document.createElement("p");intro.className="dialog-service";intro.textContent=layerLabel+" / 関連カード "+node.issues.length+"件";
+  content.append(title,intro);
+  node.issues.forEach(issue=>{
+    const record=document.createElement("section");record.className="evidence-record";
+    const heading=document.createElement("h3");heading.textContent=issue.office||"事業所名未入力";
+    record.append(heading);
+    [["回答者の立場",issue.role],["テーマ",issue.theme],["Q2の困りごと",issue.currentItems],["Q3の現状",issue.current],["Q5のギャップ",issue.gap],["Q7の方向性",issue.direction]].forEach(([label,value])=>{const p=document.createElement("p");const strong=document.createElement("strong");strong.textContent=label+"：";p.append(strong,document.createTextNode(value||"未入力"));record.append(p)});
+    content.append(record);
+  });
+  document.querySelector("#causal-evidence-dialog").showModal();
+}
+function causalLayerText(structure){
+  return CAUSAL_LAYER_DEFINITIONS.map(layer=>"【"+layer.label+"】\n"+structure.layers[layer.key].map(node=>"・"+node.name+"（関連カード "+node.issues.length+"件）\n  根拠："+(node.evidence.slice(0,2).join(" / ")||"未入力")).join("\n")).join("\n\n");
+}
+function copyTextContent(text,button,defaultLabel){
+  const done=()=>{button.textContent="コピーしました";setTimeout(()=>button.textContent=defaultLabel,1800)};
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(text).then(done).catch(()=>fallbackCopyText(text,done));
+  else fallbackCopyText(text,done);
+}
+function fallbackCopyText(text,done){
+  const area=document.createElement("textarea");area.value=text;document.body.append(area);area.select();document.execCommand("copy");area.remove();done();
+}
+function renderCausalStructure(issues){
+  latestCausalStructure=buildCausalStructure(issues);
+  const section=document.querySelector("#causal-draft");section.hidden=false;
+  const layers=document.querySelector("#causal-layers");layers.replaceChildren();
+  CAUSAL_LAYER_DEFINITIONS.forEach((definition,index)=>{
+    const column=document.createElement("section");column.className="causal-layer";
+    const head=document.createElement("div");head.className="causal-layer-head";const step=document.createElement("span");step.textContent="LAYER "+(index+1);const title=document.createElement("h4");title.textContent=definition.label;const desc=document.createElement("span");desc.textContent=definition.description;head.append(step,title,desc);
+    const list=document.createElement("div");list.className="causal-node-list";
+    latestCausalStructure.layers[definition.key].forEach(node=>list.append(renderCausalNode(node,definition.label)));
+    if(!list.children.length){const empty=document.createElement("p");empty.className="node-meta";empty.textContent="該当する内容は未抽出です。";list.append(empty)}
+    column.append(head,list);layers.append(column);
+  });
+  appendList(document.querySelector("#short-term-issues"),latestCausalStructure.shortTerm.map(node=>node.name+"（"+node.issues.length+"件）: 運用変更やICT等で3か月以内の試行を検討"),"短期改善候補は、管理者との確認後に整理してください。");
+  appendList(document.querySelector("#long-term-issues"),latestCausalStructure.longTerm.map(node=>node.name+"（"+node.issues.length+"件）"),"中長期課題候補は、管理者との確認後に整理してください。");
+  appendList(document.querySelector("#confirmation-points"),["この課題は実際に現場で頻繁に起きていますか","原因の置き方は現場感と合っていますか","今年度の短期改善として扱うべきですか","中長期で扱うべき構造課題ですか","既存の会議体や教育体制で対応できますか","ICT導入より先に運用ルールを整える必要がありますか"],"確認論点はありません。");
+  appendList(document.querySelector("#interview-questions"),["この課題が起きやすい時間帯や場面はどこですか","どの職種・役割に負担が偏っていますか","これまでに同じ課題へ取り組んだことはありますか","うまくいかなかった理由は何ですか","短期的に変えられることと、時間をかけて変えるべきことは何ですか"],"確認質問はありません。");
+}
+document.querySelector("#evidence-dialog-close").addEventListener("click",()=>document.querySelector("#causal-evidence-dialog").close());
+document.querySelector("#causal-evidence-dialog").addEventListener("click",event=>{if(event.target===event.currentTarget)event.currentTarget.close()});
+document.querySelector("#copy-causal-layers").addEventListener("click",event=>{if(latestCausalStructure)copyTextContent(causalLayerText(latestCausalStructure),event.currentTarget,"4層整理をコピー")});
+document.querySelector("#copy-long-term").addEventListener("click",event=>{if(latestCausalStructure)copyTextContent("【中長期課題候補】\n"+latestCausalStructure.longTerm.map(node=>"・"+node.name+"（関連カード "+node.issues.length+"件）").join("\n"),event.currentTarget,"中長期課題候補をコピー")});
+document.querySelector("#copy-interview-questions").addEventListener("click",event=>copyTextContent("【管理者・活動推進リーダーへの確認質問】\n"+[...document.querySelectorAll("#interview-questions li")].map(item=>"・"+item.textContent).join("\n"),event.currentTarget,"確認質問をコピー"));
+
+document.querySelectorAll(".planner-tab").forEach(b=>{const active=b.dataset.plannerTab===name;b.classList.toggle("is-active",active);b.setAttribute("aria-selected",String(active))});
   ["csv","manual","case"].forEach(key=>document.querySelector("#planner-"+key+"-panel").hidden=key!==name);
 }
 function createPlanFromCase(item){
@@ -132,7 +271,7 @@ function renderIssueCards(issues){
 }
 document.querySelectorAll(".planner-tab").forEach(button=>button.addEventListener("click",()=>selectPlannerTab(button.dataset.plannerTab)));
 PROBLEM_CATEGORIES.forEach(value=>{const option=document.createElement("option");option.value=value;option.textContent=value;document.querySelector('#manual-plan-form select[name="problemCategory"]').append(option)});
-document.querySelector("#problem-csv-input").addEventListener("change",event=>{const file=event.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const rows=parseCSV(String(reader.result));if(!rows.length)throw new Error();csvIssues=calculateCsvIssues(rows);document.querySelector("#csv-status").textContent=rows.length+"件を読み込み、"+csvIssues.length+"件の課題カードを作成しました。";renderCsvSummary(rows,csvIssues);renderIssueCards(csvIssues)}catch(error){document.querySelector("#csv-status").textContent="CSVを読み取れませんでした。見出しと文字コード（UTF-8）を確認してください。"}};reader.readAsText(file,"UTF-8")});
+document.querySelector("#problem-csv-input").addEventListener("change",event=>{const file=event.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const rows=parseCSV(String(reader.result));if(!rows.length)throw new Error();csvIssues=calculateCsvIssues(rows);document.querySelector("#csv-status").textContent=rows.length+"件を読み込み、"+csvIssues.length+"件の課題カードを作成しました。";renderCsvSummary(rows,csvIssues);renderIssueCards(csvIssues);renderCausalStructure(csvIssues)}catch(error){document.querySelector("#csv-status").textContent="CSVを読み取れませんでした。見出しと文字コード（UTF-8）を確認してください。"}};reader.readAsText(file,"UTF-8")});
 document.querySelector("#manual-plan-form").addEventListener("submit",event=>{event.preventDefault();const values=Object.fromEntries(new FormData(event.currentTarget));renderPlan({title:values.title,current:values.current,desired:values.desired,problemCategories:[values.problemCategory],categories:mapByIncludes(values.direction,DIRECTION_CATEGORY_MAP),direction:values.direction,service:values.service,keywords:values.keywords,priorityReason:"手入力された課題をもとに、分類・方向性・キーワードが近い事例を優先"})});
 
 loadCases();
