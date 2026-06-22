@@ -75,6 +75,14 @@ function findRelatedCases(issue,limit=5){
     return{item,score}
   }).sort((a,b)=>b.score-a.score||a.item.id-b.item.id).slice(0,Math.max(3,limit)).map(x=>x.item);
 }
+const CASE_PLAN_OVERRIDES={
+  1005:{
+    problemDetails:"記録業務など、実際には実施しているが業務表に載っていない業務があった。実際の業務と業務表に乖離があり、業務表に載っていない業務の実施タイミングも職員により異なっていた。",
+    approach:"業務時間調査を実施し、業務を10分単位で見える化した。業務時間調査結果と現場ヒアリングから、業務表と実際の業務の差を把握し、業務の役割分担や実施タイミングを明確にした業務表を作成した。",
+    outcome:"職員の業務時間に対する意識が高まった。",
+    tip:"対象業務を絞って業務時間を記録し、業務表と実際の動きの差を職員で共有する。"
+  }
+};
 function directionText(issue){return issue.direction||issue.categories?.join("、")||"業務の見直しと小さな試行"}
 function firstTwoWeeks(issue){
   const d=directionText(issue);
@@ -90,11 +98,120 @@ function metricText(issue){
   if(p.includes("物を探す"))return"探し物の回数・時間、準備の往復回数";
   return"対象業務の所要時間、職員の負担感、利用者と関わる時間";
 }
+function isUnverifiedCase(item){return!CASE_PLAN_OVERRIDES[item.id]&&/未精査|簡易カード/.test(item.sourceNote||"")}
+function casePlanItem(item){return{...item,...(CASE_PLAN_OVERRIDES[item.id]||{})}}
+function caseSourceText(item){
+  const title=item.sourceTitle||item.sourceType||"出典資料";
+  const page=item.sourcePage?"（"+item.sourcePage+"）":"";
+  const url=item.sourcePdf||item.source||"出典リンクは自施設で確認する";
+  return title+page+"\n"+url;
+}
+function caseReferenceText(item){
+  return"事例タイトル："+item.title+"\nサービス種別："+item.service+"\n困りごと分類："+item.problemCategory+"\n出典："+caseSourceText(item);
+}
+function splitCaseStatements(value){
+  const parts=String(value||"").split(/[。\n]+/).map(text=>text.trim()).filter(Boolean);
+  return parts.length?parts.map(text=>"・"+text+"。").join("\n"):"・出典PDFで取組内容を確認する。";
+}
+function sameCaseText(a,b){return String(a||"").replace(/\s+/g,"").replace(/[。、「」]/g,"")===String(b||"").replace(/\s+/g,"").replace(/[。、「」]/g,"")}
+function caseProblemText(item){
+  if(!item.problemDetails||isUnverifiedCase(item)&&sameCaseText(item.problemDetails,item.title))return"現在の簡易カードでは課題の詳細が十分に整理されていません。出典PDFで「困っていたこと」を確認してください。";
+  return item.problemDetails;
+}
+function caseApproachText(item){
+  const text=splitCaseStatements(item.approach);
+  return isUnverifiedCase(item)?text+"\n・詳細な手順と実施条件は出典PDFで確認する。":text;
+}
+function caseOutcomeText(item){
+  if(!item.outcome)return"出典PDFで成果を確認してください。";
+  if(isUnverifiedCase(item))return"現在の簡易カードには「"+item.outcome+"」と記載されています。出典PDFの成果欄は未精査のため、確認前は成果として断定しません。";
+  return item.outcome;
+}
+function caseCategoryCheck(item){
+  if(item.problemCategory?.includes("記録"))return"記録する場面、記録項目、転記や二重入力、入力する人の違いを確認する。";
+  if(item.problemCategory?.includes("連絡"))return"何を、誰に、いつ、どの方法で伝えているかと、確認漏れがないかを確認する。";
+  if(item.problemCategory?.includes("物を探す"))return"必要な物の置き場所、準備・片付けの手順、探し物や往復が生じる場面を確認する。";
+  if(item.problemCategory?.includes("目標"))return"改善の目的、進める役割、話し合いと振り返りの方法が共有されているか確認する。";
+  return"業務表と実際の動き、職員ごとの実施タイミング、役割分担の違いを確認する。";
+}
+function caseCurrentCheck(item){
+  const problem=caseProblemText(item);
+  const first=problem.startsWith("現在の簡易カード")?"出典PDFで事例の課題を確認したうえで、自施設の同じ業務場面を確認する。":"自施設でも、「"+problem+"」と同じ状況がないか確認する。";
+  return first+"\n"+caseCategoryCheck(item);
+}
+function caseDesiredText(item){
+  if(item.problemCategory?.includes("記録"))return"記録の目的、項目、入力手順が確認され、職員が同じ認識で記録を残せる状態を目指す。";
+  if(item.problemCategory?.includes("連絡"))return"共有する情報、相手、時点、方法が確認され、必要な情報を職員が同じ認識で扱える状態を目指す。";
+  if(item.problemCategory?.includes("物を探す"))return"必要な物の置き場所と準備・片付けのルールが確認され、職員が迷わず扱える状態を目指す。";
+  if(item.problemCategory?.includes("目標"))return"改善の目的、役割、振り返り方法が確認され、職員が同じ認識で改善を続けられる状態を目指す。";
+  return"業務の流れ、役割分担、実施タイミングが見える化され、職員が同じ認識で業務を進められる状態を目指す。";
+}
+function shortCaseText(value,max=72){
+  const text=String(value||"").replace(/\s+/g," ").trim();
+  return text.length>max?text.slice(0,max-1)+"…":text;
+}
+function caseFirstTwoWeeks(item){
+  const text=[item.title,item.approach,item.tip].join(" ");
+  if(/業務時間調査|タイムスタディ/.test(text))return"1. 対象業務を1つ選ぶ\n2. 2日間、業務を10分単位で記録する\n3. 業務表に載っている業務と、実際に行っている業務の差を確認する\n4. 職員ごとの実施タイミングや役割の違いを整理する\n5. 業務表または役割分担表のたたき台を作る";
+  if(item.problemCategory?.includes("物を探す")||(item.categories||[]).includes("5S活動"))return"1. 探し物や準備の負担がある場所を1か所選ぶ\n2. 現在の置き場所と使う人を写真・メモで確認する\n3. 事例の取組「"+shortCaseText(item.approach)+"」を参考に、必要・不要と定位置の案を作る\n4. 真似できるポイント「"+shortCaseText(item.tip)+"」を使い、戻し方のルールを決める\n5. 1週間試して、迷った場面を記録する";
+  if(item.problemCategory?.includes("記録"))return"1. 見直す記録・帳票を1つ選ぶ\n2. 作成、確認、転記、保管までの現在の流れを書き出す\n3. 事例の取組「"+shortCaseText(item.approach)+"」を参考に、減らせる手順と残すべき情報を分ける\n4. 真似できるポイント「"+shortCaseText(item.tip)+"」を使い、書式または入力手順の案を作る\n5. 少人数で1週間試し、入力しにくい点を集める";
+  if(item.problemCategory?.includes("連絡"))return"1. 見直す申し送り・連絡場面を1つ選ぶ\n2. 現在、何を誰にいつ伝えているかを書き出す\n3. 事例の取組「"+shortCaseText(item.approach)+"」を参考に、必要情報と伝達方法の案を作る\n4. 真似できるポイント「"+shortCaseText(item.tip)+"」を使い、確認方法を決める\n5. 1週間試し、伝わりにくかった内容を集める";
+  if(item.problemCategory?.includes("目標")||(item.categories||[]).includes("人材育成"))return"1. 改善対象と参加する職員を決める\n2. 現在の理解・困りごとを短い聞き取りで確認する\n3. 事例の取組「"+shortCaseText(item.approach)+"」を参考に、話し合い・研修の案を作る\n4. 真似できるポイント「"+shortCaseText(item.tip)+"」を進め方に反映する\n5. 1回試し、理解できた点と追加確認を集める";
+  return"1. 見直す業務場面を1つ選ぶ\n2. 実際の流れ、時刻、担当を職員ごとに記録する\n3. 事例の取組「"+shortCaseText(item.approach)+"」を参考に、違いと重なりを整理する\n4. 真似できるポイント「"+shortCaseText(item.tip)+"」を使い、役割・手順の案を作る\n5. 小さく試し、職員の気づきを集める";
+}
+function caseMonthChecks(item){
+  if(/業務時間調査|タイムスタディ/.test([item.title,item.approach,item.tip].join(" ")))return"・職員が業務時間に対する気づきを共有できたか\n・業務表と実際の業務の差が整理されたか\n・見直し候補の業務を抽出できたか\n・業務表や役割分担表の修正案を作成できたか";
+  const lines=["・最初の2週間で決めた確認・試行を実施できたか","・自施設の現状と事例の取組の違いを職員で共有できたか","・真似できるポイント「"+shortCaseText(item.tip,56)+"」を自施設で続けられる形に直せたか"];
+  if(!isUnverifiedCase(item)&&item.outcome)lines.push("・事例の成果「"+shortCaseText(item.outcome,64)+"」に対応する変化が自施設にあるか確認できたか");
+  else lines.push("・出典未精査の成果を前提にせず、自施設で確認できた変化を記録できたか");
+  return lines.join("\n");
+}
+function caseRoles(item){
+  if(/業務時間調査|タイムスタディ/.test([item.title,item.approach,item.tip].join(" ")))return"・推進リーダー：業務時間調査の準備と集計\n・現場職員：業務内容と実施時刻の記録\n・管理者：見直し対象業務の決定と業務表修正の承認\n・支援者：調査結果の整理と改善案作成の支援";
+  if(item.problemCategory?.includes("記録"))return"・推進リーダー：対象記録と確認期間の設定\n・現場職員：現在の記録工程と使いにくい点の記録\n・管理者：残す情報と変更案の承認\n・支援者：工程整理と書式・運用案の作成支援";
+  if(item.problemCategory?.includes("連絡"))return"・推進リーダー：対象場面と必要情報の整理\n・現場職員：現在の伝達方法と伝わりにくい内容の記録\n・管理者：共有ルールと試行範囲の承認\n・支援者：情報整理と運用案の作成支援";
+  if(item.problemCategory?.includes("物を探す"))return"・推進リーダー：対象場所と確認日の設定\n・現場職員：必要・不要、使用頻度、迷う場面の記録\n・管理者：廃棄・保管・定位置ルールの承認\n・支援者：整理基準と維持方法の作成支援";
+  if(item.problemCategory?.includes("目標"))return"・推進リーダー：話し合い・研修の準備と記録\n・現場職員：困りごとと実施後の気づきの共有\n・管理者：改善目的と継続方法の決定\n・支援者：論点整理と振り返りの支援";
+  return"・推進リーダー：対象業務の記録準備と違いの整理\n・現場職員：実際の流れ、時刻、役割の記録\n・管理者：試す役割・手順と変更案の承認\n・支援者：業務整理と改善案作成の支援";
+}
+function caseMetrics(item){
+  if(/業務時間調査|タイムスタディ/.test([item.title,item.approach,item.tip].join(" ")))return"・業務時間調査を実施できたか\n・業務表と実際の業務の差を整理できたか\n・職員が業務時間に対する気づきを共有できたか\n・見直し候補の業務を抽出できたか";
+  const base=["・対象とした業務・場面の現状確認を実施できたか","・事例の取組を自施設向けに置き換えた案を作成できたか"];
+  if(item.problemCategory?.includes("記録"))base.push("・記録工程の重複・迷い・確認事項を整理できたか");
+  else if(item.problemCategory?.includes("連絡"))base.push("・必要情報、伝える相手・時点・方法を整理できたか");
+  else if(item.problemCategory?.includes("物を探す"))base.push("・必要・不要、定位置、戻し方を整理できたか");
+  else if(item.problemCategory?.includes("目標"))base.push("・改善目的と継続方法を職員で確認できたか");
+  else base.push("・業務の流れ、時刻、役割の違いを整理できたか");
+  base.push("・試行で得た職員の気づきを共有できたか");
+  return base.join("\n");
+}
+function caseAttention(item){
+  if(item.id===1005)return"この段階では、時間削減を成果として断定せず、まず業務の見える化と職員の気づきの共有を成果として扱う。";
+  if(isUnverifiedCase(item))return"この事例はPDF一覧から作成した未精査の簡易カードです。記載された成果を確定事項として扱わず、出典PDFの本文を確認してください。自施設では、まず現状確認と職員の気づきの共有を成果として扱います。";
+  return"事例と同じ成果が自施設でも得られると断定せず、利用者への影響と職員の負担を確認しながら小さく試します。数値は自施設で測定できたものだけを使います。";
+}
+function buildCasePlan(rawItem){
+  const item=casePlanItem(rawItem);
+  return{issue:item,related:[],showRelated:false,fields:[
+    ["参考にした事例",caseReferenceText(item)],
+    ["事例で確認された課題",caseProblemText(item)],
+    ["事例で行った取組",caseApproachText(item)],
+    ["事例で確認された成果",caseOutcomeText(item)],
+    ["自施設で確認する現状",caseCurrentCheck(item)],
+    ["自施設のありたい姿",caseDesiredText(item)],
+    ["最初の2週間でやること",caseFirstTwoWeeks(item)],
+    ["1か月後の確認ポイント",caseMonthChecks(item)],
+    ["役割分担",caseRoles(item)],
+    ["成果指標",caseMetrics(item)],
+    ["注意点",caseAttention(item)]
+  ]};
+}
 function buildPlan(issue){
+  if(issue.planSource==="case")return buildCasePlan(issue);
   const related=findRelatedCases(issue);
   const current=issue.current||issue.currentItems||issue.problemDetails||"現場の状況をチームで確認する";
   const desired=issue.desired||issue.resolved||issue.outcome||"職員が迷わず安全に業務を進められる状態";
-  return{issue,related,fields:[
+  return{issue,related,showRelated:true,fields:[
     ["課題名",issue.title],["現状",current],["ありたい姿",desired],
     ["優先順位の理由",issue.priorityReason||"選択した課題・事例を起点に、現場で小さく試せる内容として整理"],
     ["取り組む方向性",directionText(issue)],["最初の2週間でやること",firstTwoWeeks(issue)],
@@ -103,13 +220,18 @@ function buildPlan(issue){
     ["成果指標",metricText(issue)],["注意点","数値だけで評価せず、利用者への影響と職員の負担を確認する。最初から全体展開せず小さく試す。"]
   ]};
 }
-function planText(plan){return plan.fields.map(([h,v])=>"【"+h+"】\n"+v).join("\n\n")+"\n\n【参考事例】\n"+plan.related.map((x,i)=>(i+1)+". "+x.title+"（"+x.service+"）").join("\n")}
+function planText(plan){
+  const fields=plan.fields.map(([h,v])=>"【"+h+"】\n"+v).join("\n\n");
+  if(plan.showRelated===false)return fields;
+  return fields+"\n\n【参考事例】\n"+plan.related.map((x,i)=>(i+1)+". "+x.title+"（"+x.service+"）").join("\n");
+}
 function renderPlan(issue){
   const plan=buildPlan(issue),output=document.querySelector("#plan-output");output.hidden=false;output.replaceChildren();
   const head=document.createElement("div");head.className="plan-output-head";const title=document.createElement("h3");title.textContent="改善計画のたたき台";const copy=document.createElement("button");copy.type="button";copy.className="copy-plan-button";copy.textContent="計画案をコピー";copy.addEventListener("click",()=>copyPlan(plan,copy));head.append(title,copy);
   const fields=document.createElement("div");fields.className="plan-fields";
   plan.fields.forEach(([heading,value])=>{const block=document.createElement("section");block.className="plan-field";const h=document.createElement("h4");h.textContent=heading;const p=document.createElement("p");p.textContent=value;block.append(h,p);fields.append(block)});
-  const related=document.createElement("section");related.className="plan-field related-cases";const rh=document.createElement("h4");rh.textContent="参考事例";const list=document.createElement("div");list.className="related-case-list";plan.related.forEach(item=>{const card=document.createElement("div");card.className="related-case";const strong=document.createElement("strong");strong.textContent=item.title;const meta=document.createElement("span");meta.textContent=item.service+" / "+item.problemCategory;card.append(strong,meta);list.append(card)});related.append(rh,list);fields.append(related);output.append(head,fields);output.scrollIntoView({behavior:"smooth",block:"start"});
+  if(plan.showRelated!==false){const related=document.createElement("section");related.className="plan-field related-cases";const rh=document.createElement("h4");rh.textContent="参考事例";const list=document.createElement("div");list.className="related-case-list";plan.related.forEach(item=>{const card=document.createElement("div");card.className="related-case";const strong=document.createElement("strong");strong.textContent=item.title;const meta=document.createElement("span");meta.textContent=item.service+" / "+item.problemCategory;card.append(strong,meta);list.append(card)});related.append(rh,list);fields.append(related)}
+  output.append(head,fields);output.scrollIntoView({behavior:"smooth",block:"start"});
 }
 async function copyPlan(plan,button){const text=planText(plan);try{await navigator.clipboard.writeText(text)}catch(error){const area=document.createElement("textarea");area.value=text;document.body.append(area);area.select();document.execCommand("copy");area.remove()}button.textContent="コピーしました";setTimeout(()=>button.textContent="計画案をコピー",1800)}
 const CAUSAL_LAYER_DEFINITIONS=[
@@ -312,7 +434,7 @@ document.querySelectorAll(".planner-tab").forEach(b=>{const active=b.dataset.pla
 }
 function createPlanFromCase(item){
   selectPlannerTab("case");document.querySelector("#selected-case-message").textContent="選択中："+item.title;
-  renderPlan({title:item.title,current:item.problemDetails,desired:item.outcome,problemCategories:[item.problemCategory],categories:item.categories,service:item.service,keywords:item.tip+" "+item.supportUse,direction:item.categories.join("、"),priorityReason:"既存事例を参考に、同じ困りごと分類と取組分類を優先"});
+  renderPlan({...item,planSource:"case",problemCategories:[item.problemCategory],categories:item.categories||[]});
   document.querySelector("#planner").scrollIntoView({behavior:"smooth",block:"start"});
 }
 function renderCsvSummary(rows,issues){
