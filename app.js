@@ -11,13 +11,14 @@ const CSV_FORMATS = {
   new: { type: 'new', label: '問題虫めがね 新版CSV' },
   unknown: { type: 'unknown', label: '未対応CSV' }
 };
-const NEW_CSV_NOTICE = '新版CSVには、ありたい姿・解決状態・解決方向性・実施する取組・成果指標は含まれていません。改善計画を作成する際は、管理者・活動推進リーダーへの追加確認が必要です。';
+const UNCONFIRMED_TEXT = '未確認。管理者・活動推進リーダーへの確認が必要。';
+const NEW_CSV_NOTICE = '新版CSVには、ありたい姿・解決状態・解決方向性・実施する取組・成果指標は含まれていません。このCSVだけで完成版の改善計画案とはせず、課題選定と確認事項の整理に使います。';
 const NEW_CSV_UNCONFIRMED = {
-  desired: '未確認。管理者・活動推進リーダーへの確認が必要',
-  resolved: '未確認。改善計画作成時に確認',
-  direction: '未確認。関連事例を参考に確認が必要',
-  action: '未確認。管理者・活動推進リーダーと決定',
-  metric: '未確認。取組内容決定後に設定'
+  desired: UNCONFIRMED_TEXT,
+  resolved: UNCONFIRMED_TEXT,
+  direction: UNCONFIRMED_TEXT,
+  action: UNCONFIRMED_TEXT,
+  metric: UNCONFIRMED_TEXT
 };
 const BLOCKS = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
 const CAUSAL_LAYERS = [
@@ -53,12 +54,12 @@ function normalizeHeader(value) { return normalized(value).replace(/[〜～]/g, 
 function uniqueValues(values) { return [...new Set(values.map(value => String(value || '').trim()).filter(Boolean))]; }
 function unique(field) { return uniqueValues(state.cases.flatMap(item => Array.isArray(item[field]) ? item[field] : [item[field]])); }
 function addUnique(target, items) { items.forEach(item => { if (item && !target.includes(item)) target.push(item); }); }
+function bind(selector, event, handler) { const node = q(selector); if (node) node.addEventListener(event, handler); }
 function mapByIncludes(value, map) {
   const result = [];
   Object.entries(map).forEach(([label, values]) => { if (String(value || '').includes(label)) addUnique(result, values); });
   return result;
 }
-function bind(selector, event, handler) { const node = q(selector); if (node) node.addEventListener(event, handler); }
 
 async function loadCases() {
   try {
@@ -264,6 +265,10 @@ function categoriesFromNewCsvIssue(issue) {
   if (/目標|改善|活動|リーダー|管理者/.test(text)) addUnique(categories, ['改善活動', '標準化']);
   return categories;
 }
+function isUnconfirmedValue(value) {
+  const text = String(value || '').trim();
+  return !text || /未確認|未入力|不明|わからない|分からない|わかりません|分かりません|回答なし|空欄|どのくらい起こるかわからない|どのくらい起きるかわからない/.test(text);
+}
 function frequencyScore(value) {
   const text = String(value || '');
   if (/常に|いつも|毎日|よく|頻繁|多い/.test(text)) return 5;
@@ -282,9 +287,21 @@ function impactScore(value) {
   const text = String(value || '');
   let score = 0;
   if (/残業|時間がかか|休憩|負担|疲/.test(text)) score += 3;
-  if (/確認漏れ|漏れ|ミス|事故|安全|リスク/.test(text)) score += 4;
+  if (/確認漏れ|漏れ|ミス|事故|安全|リスク|間違い|伝え忘れ/.test(text)) score += 4;
   if (/品質|サービス|利用者|家族|不安|ストレス/.test(text)) score += 2;
   return Math.min(score, 6);
+}
+function scoredValue(value, scorer) { return isUnconfirmedValue(value) ? 0 : scorer(value); }
+function newCsvPriorityReason(issue, sameProblem, sameCategory, roleCount) {
+  const details = [];
+  if (!isUnconfirmedValue(issue.duration)) details.push('継続期間が「' + issue.duration + '」');
+  if (!isUnconfirmedValue(issue.impact)) details.push('影響として「' + issue.impact + '」が挙がっている');
+  if (sameCategory > 1) details.push('同じ困りごと分類の回答が' + sameCategory + '件ある');
+  if (sameProblem > 1) details.push('同じ課題の回答が' + sameProblem + '件ある');
+  if (roleCount > 1) details.push('複数の立場から同じ課題が出ている');
+  if (!details.length) return '頻度や影響など一部情報は未確認ですが、課題名と困りごと分類が入力されているため、追加確認の対象として整理しています。';
+  const lead = isUnconfirmedValue(issue.frequency) ? '頻度は未確認だが' : '頻度は「' + issue.frequency + '」であり';
+  return lead + '、' + details.join('、') + 'ため、追加確認の優先度が高い項目です。';
 }
 function calculateNewCsvIssues(rows) {
   const raw = rows.map((row, index) => {
@@ -336,9 +353,15 @@ function calculateNewCsvIssues(rows) {
     const sameProblem = problemCounts[issue.selectedProblem] || 1;
     const sameCategory = categoryCounts[issue.problemCategory] || 1;
     const roleCount = rolesByProblem[issue.selectedProblem]?.size || 1;
-    const score = Math.round(sameProblem * 3 + sameCategory * 1.5 + roleCount * 2 + frequencyScore(issue.frequency) + durationScore(issue.duration) + impactScore(issue.impact));
-    const reasons = ['同じ課題 ' + sameProblem + '件', '同じ困りごと分類 ' + sameCategory + '件', '回答者の立場 ' + roleCount + '種類', '頻度：' + displayValue(issue.frequency), '継続期間：' + displayValue(issue.duration), '影響：' + displayValue(issue.impact)];
-    return { ...issue, priorityScore: score, priorityReason: reasons.join('・') };
+    const score = Math.round(
+      sameProblem * 3
+      + sameCategory * 1.5
+      + roleCount * 2
+      + scoredValue(issue.frequency, frequencyScore)
+      + scoredValue(issue.duration, durationScore)
+      + scoredValue(issue.impact, impactScore)
+    );
+    return { ...issue, priorityScore: score, priorityReason: newCsvPriorityReason(issue, sameProblem, sameCategory, roleCount) };
   }).sort((a, b) => b.priorityScore - a.priorityScore);
 }
 function calculateOldCsvIssues(rows) {
@@ -420,6 +443,24 @@ function newCsvKnownText(issue) {
     '継続期間：' + displayValue(issue.duration)
   ].join('\n');
 }
+function unconfirmedItemsText() {
+  return [
+    'ありたい姿：' + UNCONFIRMED_TEXT,
+    '解決された状態：' + UNCONFIRMED_TEXT,
+    '解決方向性：' + UNCONFIRMED_TEXT,
+    '実施する取組：' + UNCONFIRMED_TEXT,
+    '成果指標：' + UNCONFIRMED_TEXT
+  ].join('\n');
+}
+function newCsvConfirmationQuestions() {
+  return [
+    'ありたい姿はどのような状態ですか。',
+    'この課題が解決された状態を、職員・利用者の行動で表すと何ですか。',
+    '解決方向性は、運用ルール・業務プロセス変更・ICT活用・人材育成などのどれに近いですか。',
+    '実施する取組を誰が、いつから、どの範囲で試しますか。',
+    '成果指標は何を、いつ、どの方法で確認しますか。'
+  ].join('\n');
+}
 function buildPlan(issue) {
   if (issue.planSource === 'case') {
     return {
@@ -440,16 +481,18 @@ function buildPlan(issue) {
   if (issue.csvFormat === 'new') {
     const related = findRelatedCases(issue, 5);
     return {
-      title: '追加確認が必要な計画案',
+      title: '改善計画作成前の確認メモ',
+      copyLabel: '確認メモをコピー',
       issue,
       related,
       relatedHeading: '参考候補',
       showRelated: true,
       fields: [
         ['このCSVから分かる課題', newCsvKnownText(issue)],
-        ['優先度が高い理由', issue.priorityReason],
+        ['追加確認の優先度が高い理由', issue.priorityReason],
+        ['未確認項目', unconfirmedItemsText()],
         ['関連する参考事例', related.length ? related.map((item, index) => (index + 1) + '. ' + item.title + '（' + item.service + ' / ' + item.problemCategory + '）').join('\n') : '関連する参考候補は、管理者・活動推進リーダーへの確認後に再検索してください。'],
-        ['管理者・活動推進リーダーに確認すべき事項', ['ありたい姿はどのような状態ですか', 'この課題が解決された状態を、職員・利用者の行動で表すと何ですか', '解決方向性は、運用ルール・業務プロセス変更・ICT活用・人材育成などのどれに近いですか', '実施する取組を誰が、いつから、どの範囲で試しますか', '成果指標は何を、いつ、どの方法で確認しますか'].join('\n')],
+        ['管理者・活動推進リーダーに確認すべき事項', newCsvConfirmationQuestions()],
         ['注意点', NEW_CSV_NOTICE]
       ]
     };
@@ -488,8 +531,9 @@ function renderPlan(issue) {
   const copy = document.createElement('button');
   copy.type = 'button';
   copy.className = 'copy-plan-button';
-  copy.textContent = '計画案をコピー';
-  copy.addEventListener('click', () => copyTextContent(planText(plan), copy, '計画案をコピー'));
+  const copyLabel = plan.copyLabel || '計画案をコピー';
+  copy.textContent = copyLabel;
+  copy.addEventListener('click', () => copyTextContent(planText(plan), copy, copyLabel));
   head.append(title, copy);
   const fields = document.createElement('div');
   fields.className = 'plan-fields';
@@ -836,7 +880,7 @@ function renderIssueCards(issues) {
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'issue-plan-button';
-    button.textContent = issue.csvFormat === 'new' ? '追加確認が必要な計画案を作る' : 'この課題の計画案を作る';
+    button.textContent = issue.csvFormat === 'new' ? '確認メモを作る' : 'この課題の計画案を作る';
     button.addEventListener('click', () => renderPlan(issue));
     card.append(head, meta, grid, button);
     return card;
