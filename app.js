@@ -34,6 +34,35 @@ const DIRECTION_CATEGORY_MAP = {
   '業務プロセス変更': ['業務の見直し', '役割分担'],
   '制度設計': ['人材育成', '改善活動', '標準化']
 };
+const SERVICE_ALIASES = {
+  '介護老人保健施設': ['介護老人保健施設', '老健', '施設系サービス', '入所', '入所系'],
+  '特別養護老人ホーム': ['特別養護老人ホーム', '特養', '施設系サービス', '入所', '入所系'],
+  '特定施設入居者生活介護': ['特定施設入居者生活介護', '特定施設', '有料老人ホーム', '施設系サービス'],
+  '通所介護': ['通所介護', 'デイサービス', '通所', '通所系サービス'],
+  '訪問介護': ['訪問介護', 'ホームヘルプ', 'ヘルパー', '訪問系サービス'],
+  '訪問入浴': ['訪問入浴', '訪問系サービス'],
+  '訪問看護': ['訪問看護', '訪問系サービス'],
+  '定期巡回': ['定期巡回', '定期巡回・随時対応', '訪問系サービス'],
+  '居宅介護支援': ['居宅介護支援', 'ケアマネ', 'ケアプラン', '居宅系サービス'],
+  '小規模多機能型居宅介護': ['小規模多機能', '小多機', '居宅系サービス'],
+  '看護小規模多機能': ['看護小規模多機能', '看多機', '居宅系サービス']
+};
+const CATEGORY_ALIASES = {
+  'LIFE': ['LIFE', '科学的介護', '科学的介護情報システム', 'CHASE', 'VISIT', 'データ', 'アセスメント', '評価'],
+  'マニュアル作成': ['マニュアル作成', 'マニュアル', '手順書', '手順書の作成', '業務手順', '標準化'],
+  '改善活動': ['改善活動', '業務改善', '改善', 'PDCA', 'カイゼン', '見直し', '課題整理'],
+  'ICT活用': ['ICT活用', 'ICT', 'タブレット', 'インカム', '音声入力', 'システム', '記録ソフト'],
+  '記録の効率化': ['記録の効率化', '記録', '入力', '音声入力', 'タブレット', 'LIFE', '科学的介護'],
+  '情報共有': ['情報共有', '申し送り', '連絡', '共有', '伝達', '確認'],
+  '業務の見直し': ['業務の見直し', '業務改善', '業務時間調査', 'タイムスタディ', 'ムリ', 'ムラ', 'ムダ', '3M', '見える化'],
+  '役割分担': ['役割分担', '業務分担', '担当', 'シフト', '配置', '分担'],
+  '5S活動': ['5S', '5S活動', '整理', '整頓', '清掃', '清潔', '躾', '物品', '定位置'],
+  '事務作業の効率化': ['事務作業', '事務作業の効率化', '書類', '請求', 'FAX', '電話', '入力'],
+  '手順書の作成': ['手順書', '手順書の作成', 'マニュアル', '標準化', '業務手順'],
+  '人材育成': ['人材育成', '教育', '新人', '研修', 'OJT', '育成'],
+  '標準化': ['標準化', '統一', 'ルール', '手順', 'マニュアル', '手順書'],
+  '安全な介護': ['安全', '事故', 'ヒヤリ', 'リスク', '見守り', '移乗', '転倒']
+};
 const state = {
   cases: [],
   query: '',
@@ -59,6 +88,31 @@ function mapByIncludes(value, map) {
   const result = [];
   Object.entries(map).forEach(([label, values]) => { if (String(value || '').includes(label)) addUnique(result, values); });
   return result;
+}
+function getCaseSearchText(item) {
+  return [
+    item.title,
+    item.service,
+    item.problemCategory,
+    item.problemDetails,
+    ...(item.categories || []),
+    item.approach,
+    item.outcome,
+    item.tip,
+    item.suitableFor,
+    item.supportUse,
+    item.sourceTitle,
+    item.sourceNote
+  ].filter(Boolean).join(' ');
+}
+function matchesFilterWithAliases(item, selectedValue, aliasMap) {
+  if (!selectedValue) return true;
+  const searchText = normalized(getCaseSearchText(item));
+  const aliases = aliasMap[selectedValue] || [selectedValue];
+  return aliases.some(word => searchText.includes(normalized(word)));
+}
+function matchesAnyFilterWithAliases(item, selectedValues, aliasMap) {
+  return !selectedValues.size || [...selectedValues].some(value => matchesFilterWithAliases(item, value, aliasMap));
 }
 
 async function loadCases() {
@@ -101,16 +155,11 @@ function toggleFilter(type, value, button) {
 function getResults() {
   const query = normalized(state.query);
   const results = state.cases.filter(item => {
-    const categories = item.categories || [];
-    const searchable = normalized([
-      item.title, item.service, item.problemCategory, item.problemDetails, ...categories,
-      item.approach, item.outcome, item.tip, item.suitableFor, item.supportUse,
-      item.sourceTitle, item.sourceNote || ''
-    ].join(' '));
+    const searchable = normalized(getCaseSearchText(item));
     return (!query || searchable.includes(query))
       && (!state.filters.problem.size || state.filters.problem.has(item.problemCategory))
-      && (!state.filters.service.size || state.filters.service.has(item.service))
-      && (!state.filters.category.size || categories.some(value => state.filters.category.has(value)));
+      && matchesAnyFilterWithAliases(item, state.filters.service, SERVICE_ALIASES)
+      && matchesAnyFilterWithAliases(item, state.filters.category, CATEGORY_ALIASES);
   });
   return state.sort === 'title' ? results.sort((a, b) => a.title.localeCompare(b.title, 'ja')) : results;
 }
@@ -201,7 +250,7 @@ function parseCSV(text) {
   let cell = '';
   let quoted = false;
   for (let i = 0; i < text.length; i += 1) {
-    const ch = text[i];
+      const ch = text[i];
     const next = text[i + 1];
     if (ch === '"' && quoted && next === '"') { cell += '"'; i += 1; }
     else if (ch === '"') quoted = !quoted;
@@ -452,7 +501,7 @@ function unconfirmedItemsText() {
     '成果指標：' + UNCONFIRMED_TEXT
   ].join('\n');
 }
-function newCsvConfirmationQuestions() {
+function newCsvConfirmationQuestions() { 
   return [
     'ありたい姿はどのような状態ですか。',
     'この課題が解決された状態を、職員・利用者の行動で表すと何ですか。',
@@ -952,4 +1001,4 @@ bind('#manual-plan-form', 'submit', event => {
     priorityReason: '手入力された課題をもとに、分類・方向性・キーワードが近い事例を優先'
   });
 });
-loadCases();
+loadCases();  
