@@ -250,7 +250,7 @@ function parseCSV(text) {
   let cell = '';
   let quoted = false;
   for (let i = 0; i < text.length; i += 1) {
-      const ch = text[i];
+    const ch = text[i];
     const next = text[i + 1];
     if (ch === '"' && quoted && next === '"') { cell += '"'; i += 1; }
     else if (ch === '"') quoted = !quoted;
@@ -501,7 +501,7 @@ function unconfirmedItemsText() {
     '成果指標：' + UNCONFIRMED_TEXT
   ].join('\n');
 }
-function newCsvConfirmationQuestions() { 
+function newCsvConfirmationQuestions() {
   return [
     'ありたい姿はどのような状態ですか。',
     'この課題が解決された状態を、職員・利用者の行動で表すと何ですか。',
@@ -1001,4 +1001,5 @@ bind('#manual-plan-form', 'submit', event => {
     priorityReason: '手入力された課題をもとに、分類・方向性・キーワードが近い事例を優先'
   });
 });
-loadCases();  
+loadCases();
+  
