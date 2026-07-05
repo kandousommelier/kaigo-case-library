@@ -1,0 +1,99 @@
+name: Test causal hypothesis cards
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check JavaScript syntax
+        run: node --check causal-hypothesis-cards.js
+      - name: Check hypothesis card generation
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const vm = require('vm');
+          const source = fs.readFileSync('causal-hypothesis-cards.js', 'utf8');
+          const context = { console };
+          vm.createContext(context);
+          vm.runInContext(`
+            var buildCausalStructure = function(issues) {
+              return {
+                layers: {
+                  background: [],
+                  direct: [{ name: '直接原因：追加確認が必要', kind: 'unknownCause', issues: issues }],
+                  field: issues.map(issue => ({ name: issue.selectedProblem, kind: 'fieldObservation', issues: [issue] })),
+                  risk: []
+                },
+                shortTerm: [],
+                longTerm: [],
+                confirmationPoints: [],
+                interviewQuestions: []
+              };
+            };
+            var nodeAnswerLines = function() { return ['original']; };
+            var nodeReasonText = function() { return 'original'; };
+            function isInsightCsvIssue(issue) { return issue && issue.csvSourceType === 'insight'; }
+          `, context);
+          vm.runInContext(source, context);
+          vm.runInContext(`
+            globalThis.testIssues = [
+              {
+                csvSourceType: 'insight', sourceRow: 1,
+                problemCategory: '記録や書類の作成',
+                selectedProblem: '同じ内容を紙からシステムへ転記している',
+                timing: '毎日', location: '事務所'
+              },
+              {
+                csvSourceType: 'insight', sourceRow: 2,
+                problemCategory: '連絡、申し送り、みんなに伝えること',
+                selectedProblem: '申し送りが休みの職員に届かない',
+                timing: '申し送り時', location: '各部署'
+              }
+            ];
+            globalThis.testResult = buildCausalStructure(globalThis.testIssues);
+          `, context);
+
+          const result = context.testResult;
+          const hypothesisNodes = [
+            ...result.layers.background,
+            ...result.layers.direct,
+            ...result.layers.risk
+          ].filter(node => String(node.kind).startsWith('hypothesis'));
+
+          if (hypothesisNodes.length < 6) throw new Error('仮説カードが不足しています');
+          if (hypothesisNodes.some(node => !node.name.startsWith('【仮説】'))) {
+            throw new Error('【仮説】が付いていない追加カードがあります');
+          }
+          if (!result.layers.direct.some(node => node.name.includes('複数の書類やシステム'))) {
+            throw new Error('記録の重複仮説が生成されていません');
+          }
+          if (!result.layers.direct.some(node => node.name.includes('休み・夜勤'))) {
+            throw new Error('情報共有の仮説が生成されていません');
+          }
+          if (!result.confirmationPoints.some(text => text.includes('介護事業所に共通して見られた問題点.pdf'))) {
+            throw new Error('参照資料の注意書きがありません');
+          }
+          if (result.layers.direct.some(node => node.kind === 'unknownCause')) {
+            throw new Error('仮説が追加されたのに未解決原因カードだけが残っています');
+          }
+
+          context.testNode = hypothesisNodes[0];
+          vm.runInContext('globalThis.testLines = nodeAnswerLines(globalThis.testNode);', context);
+          if (!context.testLines.some(text => text.includes('当該施設では未確認の仮説'))) {
+            throw new Error('仮説カードの位置づけが表示されません');
+          }
+          if (!context.testLines.some(text => text.includes('介護事業所に共通して見られた問題点.pdf'))) {
+            throw new Error('仮説カードの参照資料が表示されません');
+          }
+          NODE
+      - name: Check page integration
+        run: |
+          grep -Fq 'causal-hypothesis-cards.js?v=20260705-common-problems' index.html
+          grep -Fq '【仮説】カードを補足します' index.html
