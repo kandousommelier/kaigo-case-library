@@ -51,7 +51,7 @@
         </div>
         <div class="planner-panel" id="planner-csv-panel" role="tabpanel">
           <div class="csv-upload">
-            <div><h3>問題虫めがねCSVを読み込む</h3><p>このアプリでは、読み込んだCSVファイルの内容を外部サーバーに送信・保存しません。<br>CSVデータは、お使いのブラウザ内で集計・分析にのみ使用されます。</p></div>
+            <div><h3>問題虫めがねCSVを読み込む</h3><p>新版・旧版の問題虫めがねCSVと、4列の「気づきシート集計表」に対応しています。<br>読み込んだCSVファイルの内容は外部サーバーに送信・保存せず、お使いのブラウザ内で集計・分析にのみ使用します。</p></div>
             <label class="file-button">CSVファイルを選択<input id="problem-csv-input" type="file" accept=".csv,text/csv"></label>
           </div>
           <p class="planner-status" id="csv-status">CSVを選択すると、回答を集計して課題カードを作成します。</p>
@@ -125,5 +125,6 @@
   </template>
   <script src="app.js?v=20260623-new-csv"></script>
   <script src="fixes.js?v=20260705-priority-fixes"></script>
+  <script src="insight-csv.js?v=20260705-insight-sheet"></script>
 </body>
 </html>
