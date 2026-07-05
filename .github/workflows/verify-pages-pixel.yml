@@ -1,4 +1,4 @@
-name: Diagnose GitHub Pages
+name: Verify published page
 
 on:
   pull_request:
@@ -9,48 +9,41 @@ permissions:
   pages: read
 
 jobs:
-  diagnose-pages:
+  verify-page:
     runs-on: ubuntu-latest
+    timeout-minutes: 12
     steps:
-      - name: Read Pages configuration
+      - name: Wait for Pages build
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           set -euo pipefail
-          curl -fsSL \
-            -H "Authorization: Bearer ${GH_TOKEN}" \
-            -H 'Accept: application/vnd.github+json' \
-            -H 'X-GitHub-Api-Version: 2022-11-28' \
-            'https://api.github.com/repos/kandousommelier/kaigo-case-library/pages' \
-            -o /tmp/pages.json
-          python - <<'PY'
-          import json
-          data = json.load(open('/tmp/pages.json'))
-          print('html_url:', data.get('html_url'))
-          print('status:', data.get('status'))
-          print('build_type:', data.get('build_type'))
-          print('source:', data.get('source'))
-          PY
+          for attempt in $(seq 1 32); do
+            status=$(curl -fsSL \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H 'Accept: application/vnd.github+json' \
+              -H 'X-GitHub-Api-Version: 2022-11-28' \
+              'https://api.github.com/repos/kandousommelier/kaigo-case-library/pages/builds/latest' \
+              | python -c "import json,sys; print(json.load(sys.stdin).get('status',''))")
+            echo "Pages build status: ${status}"
+            if [ "${status}" = 'built' ]; then
+              exit 0
+            fi
+            if [ "${status}" = 'errored' ]; then
+              exit 1
+            fi
+            sleep 15
+          done
+          exit 1
 
-      - name: Read latest Pages build
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - name: Check published HTML
         shell: bash
         run: |
           set -euo pipefail
-          curl -fsSL \
-            -H "Authorization: Bearer ${GH_TOKEN}" \
-            -H 'Accept: application/vnd.github+json' \
-            -H 'X-GitHub-Api-Version: 2022-11-28' \
-            'https://api.github.com/repos/kandousommelier/kaigo-case-library/pages/builds/latest' \
-            -o /tmp/build.json
-          python - <<'PY'
-          import json
-          data = json.load(open('/tmp/build.json'))
-          print('status:', data.get('status'))
-          print('commit:', data.get('commit'))
-          print('created_at:', data.get('created_at'))
-          print('updated_at:', data.get('updated_at'))
-          print('error:', data.get('error'))
-          PY
+          token="${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          curl -fsSL -H 'Cache-Control: no-cache' \
+            "https://kandousommelier.github.io/kaigo-case-library/?verify=${token}" \
+            -o /tmp/index.html
+          grep -Fq 'kaigo-case-library.goatcounter.com/count?p=/kaigo-case-library/' /tmp/index.html
+          grep -Fq 'Cookieや外部JavaScriptは使用していません' /tmp/index.html
