@@ -143,6 +143,19 @@ buildCausalStructure = function buildCausalStructureWithoutAssumedDirectCause(is
   };
 };
 
+const nodeReasonTextBeforeDirectCauseFix = nodeReasonText;
+nodeReasonText = function nodeReasonTextWithoutAssumption(node) {
+  if (node.issues?.some(issue => issue.csvFormat === 'new')) {
+    if (node.layer === 'direct') {
+      return '新版CSVには直接原因を確認する設問がないため、追加確認が必要な項目として整理しました。';
+    }
+    if (node.layer === 'background') {
+      return '新版CSVだけでは背景要因を確定できないため、追加確認が必要な項目として整理しました。';
+    }
+  }
+  return nodeReasonTextBeforeDirectCauseFix(node);
+};
+
 function clearCsvAnalysisResults() {
   csvIssues = [];
   latestCausalCopyText = { layers: '', longTerm: '', questions: '' };
@@ -194,3 +207,12 @@ handleCsvLoaded = function handleCsvLoadedWithReset(text) {
   renderIssueCards(csvIssues);
   if (status) status.textContent += ' 因果関係図のたたき台を表示しました。';
 };
+
+const csvInputForReset = q('#problem-csv-input');
+if (csvInputForReset) {
+  csvInputForReset.addEventListener('change', () => {
+    clearCsvAnalysisResults();
+    const status = q('#csv-status');
+    if (status) status.textContent = 'CSVを確認しています。';
+  }, { capture: true });
+}
