@@ -1,0 +1,38 @@
+name: Test access gate
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check JavaScript syntax
+        run: node --check access-gate.js
+      - name: Check entry template and encoded values
+        run: |
+          python - <<'PY'
+          import base64
+          from pathlib import Path
+
+          html = Path('index.html').read_text(encoding='utf-8')
+          script = Path('access-gate.js').read_text(encoding='utf-8')
+
+          assert 'id="access-gate-template"' in html
+          assert 'name="member"' in html
+          assert 'name="key"' in html
+          assert 'name="facility"' in html
+          assert 'data-member="YmFuc28="' in html
+          assert 'data-key="c3VwcG9ydDIwMjY="' in html
+          assert base64.b64decode('YmFuc28=').decode() == 'banso'
+          assert base64.b64decode('c3VwcG9ydDIwMjY=').decode() == 'support2026'
+          assert 'facility.trim' not in script
+          assert "String(values.get('facility') || '').trim()" in script
+          assert '<img\n    src="https://kaigo-case-library.goatcounter.com/count' not in html
+          assert 'recordVisit();' in script
+          PY

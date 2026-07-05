@@ -1,14 +1,44 @@
 <!doctype html>
-<html lang="ja">
+<html lang="ja" class="access-pending">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="介護現場の困りごとから、生産性向上の事例を探せるライブラリーです。">
   <title>介護の事例ライブラリー</title>
   <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="fixes.css?v=20260705-priority-fixes">
+  <link rel="stylesheet" href="fixes.css?v=20260705-access-gate">
+  <script src="access-gate.js?v=20260705-access-gate" defer></script>
 </head>
 <body>
+  <template id="access-gate-template">
+    <section id="access-gate" class="access-gate" data-member="YmFuc28=" data-key="c3VwcG9ydDIwMjY=" aria-labelledby="access-gate-title">
+      <div class="access-card">
+        <p class="access-eyebrow">伴走支援先・関係事業所向け</p>
+        <h1 id="access-gate-title">介護の事例ライブラリー</h1>
+        <p class="access-lead">本サイトは、伴走支援の一環として提供している関係事業所向けサービスです。ご案内した情報を入力してご利用ください。</p>
+        <div class="access-notice" role="note">利用者名や職員名、個別ケースの詳細など、個人が特定される情報は入力しないでください。</div>
+        <form class="access-form" novalidate>
+          <label>
+            <span>共通ID</span>
+            <input name="member" type="text" autocomplete="username" required autocapitalize="none" spellcheck="false">
+          </label>
+          <label>
+            <span>共通パスワード</span>
+            <input name="key" type="password" autocomplete="current-password" required>
+          </label>
+          <label>
+            <span>施設コード</span>
+            <input name="facility" type="text" autocomplete="off" required>
+            <small>空欄では入室できません。入力内容は保存・送信されません。</small>
+          </label>
+          <p class="access-error" role="alert" aria-live="polite"></p>
+          <button type="submit">入室する</button>
+        </form>
+        <p class="access-footnote">この画面は、限定提供サービスであることを確認するための簡易入口です。</p>
+      </div>
+    </section>
+  </template>
+
   <header class="site-header">
     <a class="brand" href="#top" aria-label="トップへ"><span class="brand-mark" aria-hidden="true">事例</span><span>介護の事例ライブラリー</span></a>
     <span class="header-note">現場の困りごとから探す</span>
@@ -108,17 +138,6 @@
     <p>厚生労働省掲載資料をもとに、伴走支援で使いやすいよう短く要約した事例です。詳細は出典資料をご確認ください。</p>
     <p>利用状況の把握を目的として、個人を特定せず訪問件数のみを集計しています。Cookieや外部JavaScriptは使用していません。</p>
   </footer>
-  <img
-    src="https://kaigo-case-library.goatcounter.com/count?p=/kaigo-case-library/"
-    alt=""
-    width="1"
-    height="1"
-    loading="eager"
-    decoding="async"
-    referrerpolicy="no-referrer"
-    aria-hidden="true"
-    style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);"
-  >
   <dialog class="case-dialog" id="case-dialog" aria-labelledby="dialog-title">
     <div class="dialog-frame"><button class="dialog-close" id="dialog-close" type="button" aria-label="詳細を閉じる">×</button><div id="dialog-content"></div></div>
   </dialog>
