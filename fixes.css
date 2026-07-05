@@ -1,0 +1,47 @@
+.case-verification-badge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  margin: 8px 0 2px;
+  padding: 3px 9px;
+  border: 1px solid;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.5;
+}
+.case-verification-badge.is-verified {
+  color: #07564f;
+  background: #edf7f5;
+  border-color: #8fc5bd;
+}
+.case-verification-badge.is-unreviewed {
+  color: #80531d;
+  background: #fff4df;
+  border-color: #e3b66d;
+}
+.case-card.is-unreviewed-case {
+  border-color: #dfc69b;
+}
+.case-verification-notice {
+  margin: 14px 0 4px;
+  padding: 12px 14px;
+  border-left: 4px solid;
+  border-radius: 8px;
+}
+.case-verification-notice.is-verified {
+  background: #f2f8f6;
+  border-color: #08766d;
+}
+.case-verification-notice.is-unreviewed {
+  background: #fff8ec;
+  border-color: #e89232;
+}
+.case-verification-notice .case-verification-badge {
+  margin: 0 0 7px;
+}
+.case-verification-notice p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.75;
+}
