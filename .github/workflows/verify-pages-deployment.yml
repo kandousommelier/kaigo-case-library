@@ -1,0 +1,51 @@
+name: Verify GitHub Pages deployment
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verify-pages:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Wait for deployed HTML and script
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://kandousommelier.github.io/kaigo-case-library'
+          success=0
+          for attempt in $(seq 1 20); do
+            token="${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${attempt}"
+            echo "Attempt ${attempt}: checking GitHub Pages"
+            if curl -fsSL -H 'Cache-Control: no-cache' "${base}/?verify=${token}" -o /tmp/index.html \
+              && curl -fsSL -H 'Cache-Control: no-cache' "${base}/insight-causal-fix.js?verify=${token}" -o /tmp/insight-causal-fix.js \
+              && grep -Fq 'insight-causal-fix.js?v=20260705-layer-roles' /tmp/index.html \
+              && grep -Fq "const INSIGHT_CAUSE_CONFIRMATION = '直接原因：追加確認が必要';" /tmp/insight-causal-fix.js \
+              && grep -Fq "'発生場面の共通傾向'" /tmp/insight-causal-fix.js \
+              && grep -Fq "'困りごとから読み取れる影響：'" /tmp/insight-causal-fix.js; then
+              success=1
+              break
+            fi
+            sleep 15
+          done
+          if [ "$success" -ne 1 ]; then
+            echo 'Expected deployment was not found within the retry window.' >&2
+            exit 1
+          fi
+          {
+            echo 'GitHub Pages deployment verification: PASS'
+            echo "Checked at: $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+            echo 'index.html loads insight-causal-fix.js?v=20260705-layer-roles'
+            echo 'insight-causal-fix.js contains the layer-specific causal logic markers'
+          } | tee /tmp/pages-verification.txt
+
+      - name: Upload verification report
+        uses: actions/upload-artifact@v4
+        with:
+          name: pages-verification
+          path: /tmp/pages-verification.txt
+          retention-days: 1
