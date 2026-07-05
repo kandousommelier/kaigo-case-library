@@ -1,0 +1,30 @@
+name: Verify published page
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verify-page:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check published HTML
+        shell: bash
+        run: |
+          set -euo pipefail
+          success=0
+          for attempt in $(seq 1 20); do
+            token="${GITHUB_RUN_ID}-${attempt}"
+            if curl -fsSL -H 'Cache-Control: no-cache' "https://kandousommelier.github.io/kaigo-case-library/?verify=${token}" -o /tmp/index.html \
+              && grep -Fq 'kaigo-case-library.goatcounter.com/count?p=/kaigo-case-library/' /tmp/index.html \
+              && grep -Fq 'Cookieや外部JavaScriptは使用していません' /tmp/index.html; then
+              success=1
+              break
+            fi
+            sleep 15
+          done
+          test "$success" -eq 1
