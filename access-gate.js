@@ -21,6 +21,10 @@
     recordVisit();
   }
 
+  function decode(value) {
+    try { return atob(value || ''); } catch (error) { return ''; }
+  }
+
   function showGate() {
     const template = document.querySelector('#access-gate-template');
     if (!template) return enterSite();
@@ -38,8 +42,8 @@
       const member = String(values.get('member') || '').trim();
       const key = String(values.get('key') || '');
       const facility = String(values.get('facility') || '').trim();
-      const expectedMember = gate.dataset.member || '';
-      const expectedKey = gate.dataset.key || '';
+      const expectedMember = decode(gate.dataset.member);
+      const expectedKey = decode(gate.dataset.key);
 
       if (!facility) {
         error.textContent = '施設コードを入力してください。';
